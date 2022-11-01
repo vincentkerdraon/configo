@@ -2,16 +2,18 @@ package secretrotation
 
 import "fmt"
 
-type MissingInitValues struct{}
+type MissingInitValuesError struct{}
 
-func (MissingInitValues) Error() string {
+func (MissingInitValuesError) Error() string {
 	return "Missing secrets init values"
 }
 
-type InvalidSecret struct {
+type InvalidSecretError struct {
 	Err error
 }
 
-func (err InvalidSecret) Error() string {
+func (err InvalidSecretError) Error() string {
 	return fmt.Sprintf("Invalid secret, %s", err.Err)
 }
+
+func (e InvalidSecretError) Unwrap() error { return e.Err }

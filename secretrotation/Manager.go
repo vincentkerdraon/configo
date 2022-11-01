@@ -20,7 +20,7 @@ func New() *Manager {
 
 func (m *Manager) Set(rs RotatingSecret) error {
 	if err := rs.Validate(); err != nil {
-		return InvalidSecret{Err: err}
+		return InvalidSecretError{Err: err}
 	}
 
 	m.RWMutex.Lock()
@@ -36,7 +36,7 @@ func (m *Manager) RotatingSecret() (RotatingSecret, error) {
 
 	//Safer to force checking the error type than not returning an error and risking to forget to Validate().
 	if err := m.rs.Validate(); err != nil {
-		return RotatingSecret{}, MissingInitValues{}
+		return RotatingSecret{}, MissingInitValuesError{}
 	}
 
 	return m.rs, nil
@@ -49,7 +49,7 @@ func (m *Manager) Current() (Secret, error) {
 
 	//Safer to force checking the error type than not returning an error and risking to forget to Validate().
 	if err := m.rs.Validate(); err != nil {
-		return "", MissingInitValues{}
+		return "", MissingInitValuesError{}
 	}
 
 	return m.rs.Current, nil

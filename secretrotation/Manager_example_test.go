@@ -12,7 +12,7 @@ func Example() {
 
 	//Init not done
 	_, err := m.Current()
-	if !errors.Is(err, secretrotation.MissingInitValues{}) {
+	if !errors.Is(err, secretrotation.MissingInitValuesError{}) {
 		panic(err)
 	}
 

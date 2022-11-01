@@ -13,11 +13,11 @@ func TestSecretRotation(t *testing.T) {
 
 	//Init not done
 	_, err := m.RotatingSecret()
-	if !errors.Is(err, secretrotation.MissingInitValues{}) {
+	if !errors.Is(err, secretrotation.MissingInitValuesError{}) {
 		t.Fatal(err)
 	}
 	_, err = m.Current()
-	if !errors.Is(err, secretrotation.MissingInitValues{}) {
+	if !errors.Is(err, secretrotation.MissingInitValuesError{}) {
 		t.Fatal(err)
 	}
 

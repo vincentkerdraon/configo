@@ -77,13 +77,13 @@ func literalStore(s string, v reflect.Value) error {
 }
 
 func NewParamFromStructTag(
-	i interface{},
-	name string,
+	v interface{},
+	name paramname.ParamName,
 	parse func(s string) error,
 	opts ...paramOption,
 ) (*Param, error) {
 	paramName := paramname.ParamName(name)
-	field, ok := reflect.TypeOf(i).Elem().FieldByName(name)
+	field, ok := reflect.TypeOf(v).Elem().FieldByName(name.String())
 	if !ok {
 		return nil, errors.ParamConfigError{ParamName: paramName, Err: fmt.Errorf("fail find struct field")}
 	}
@@ -94,7 +94,7 @@ func NewParamFromStructTag(
 				return nil
 			}
 
-			structFieldValue := reflect.ValueOf(i).Elem().FieldByName(name)
+			structFieldValue := reflect.ValueOf(v).Elem().FieldByName(name.String())
 			if err := literalStore(s, structFieldValue); err != nil {
 				return errors.ParamConfigError{ParamName: paramName, Err: err}
 			}
@@ -153,4 +153,63 @@ func NewParamFromStructTag(
 	}
 
 	return New(paramname.ParamName(field.Name), parse, append(paramOptions, opts...)...)
+}
+
+// ParamsFromStructTag reads the struct tags, using all the default options otherwise.
+// A prefix can be added in front of the param name + flag name + env var name
+func ParamsFromStructTag(
+	v interface{},
+	prefix string,
+) ([]Param, error) {
+	params := []Param{}
+	err := IterateStructFields(v, func(name paramname.ParamName) error {
+		p, err := NewParamFromStructTag(v, name, nil)
+		if err != nil {
+			return err
+		}
+		if prefix != "" {
+			p.Name = paramname.ParamName(prefix) + name
+			if p.EnvVar.Use {
+				p.EnvVar.Name = prefix + name.String()
+			}
+			if p.Flag.Use {
+				p.Flag.Name = prefix + name.String()
+			}
+		}
+		params = append(params, *p)
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return params, nil
+}
+
+// IterateStructFields finds all the exported fields in a *struct.
+//
+// Input MUST be a pointer to the struct. To avoid `reflect: Elem of invalid type`.
+// This is mostly a helper to call NewParamFromStructTag on every fields with some added logic like a name prefix.
+func IterateStructFields(
+	v interface{},
+	f func(name paramname.ParamName) error,
+) error {
+	typeOfV := reflect.TypeOf(v)
+	if typeOfV.Kind() != reflect.Ptr {
+		return fmt.Errorf("expect Ptr, got %s", typeOfV.Kind())
+	}
+	st := typeOfV.Elem()
+	for i := 0; i < st.NumField(); i++ {
+		field := st.Field(i)
+		//ignore embedded struct
+		if field.Type.Kind() == reflect.Struct {
+			continue
+		}
+		if !field.IsExported() {
+			continue
+		}
+		if err := f(paramname.ParamName(field.Name)); err != nil {
+			return err
+		}
+	}
+	return nil
 }

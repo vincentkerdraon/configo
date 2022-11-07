@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 	"os"
-	"reflect"
 
 	"github.com/vincentkerdraon/configo/config/errors"
 	"github.com/vincentkerdraon/configo/config/param"
@@ -102,20 +101,13 @@ func WithIgnoreFlagProvidedNotDefined(t bool) configOptions {
 // WithParamsFromStructTag will automatically read the struct, using struct tags when defined.
 //
 // Can be called multiple times.
-func WithParamsFromStructTag(in interface{}) configOptions {
+// This will use default options for all params.
+// This will panic in case of configuration error.
+func WithParamsFromStructTag(in interface{}, prefix string) configOptions {
 	return func(c *Manager) error {
-		params := []param.Param{}
-		st := reflect.TypeOf(in).Elem()
-		for i := 0; i < st.NumField(); i++ {
-			field := st.Field(i)
-			if !field.IsExported() {
-				continue
-			}
-			p, err := param.NewParamFromStructTag(in, field.Name, nil)
-			if err != nil {
-				return err
-			}
-			params = append(params, *p)
+		params, err := param.ParamsFromStructTag(in, prefix)
+		if err != nil {
+			panic(err)
 		}
 		return WithParams(params...)(c)
 	}

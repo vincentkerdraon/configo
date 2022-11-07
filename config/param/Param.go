@@ -13,7 +13,7 @@ type (
 		Name paramname.ParamName
 		//Parse is the user defined function for this param.
 		//Use to decode and set value to a value.
-		//Same signature as "Set() error" in std flag package.
+		//Same signature as "Set(string) error" in std flag package.
 		Parse             func(s string) error
 		Flag              Flag
 		EnvVar            EnvVar
@@ -25,6 +25,8 @@ type (
 		Default           string
 		Exclusive         []paramname.ParamName
 		IsSubCommandLocal bool
+		//prefix is only for the construction. If provided, it will be used in Name + Flag.Name + EnvVar.Name
+		prefix string
 	}
 
 	paramOption func(*Param) error
@@ -118,6 +120,15 @@ func WithExclusive(params ...paramname.ParamName) paramOption {
 func WithEnumValues(s ...string) paramOption {
 	return func(p *Param) error {
 		p.EnumValues = s
+		return nil
+	}
+}
+
+// WithPrefix added the prefix in front of Name + Flag.Name + EnvVar.Name.
+// Like a namespace.
+func WithPrefix(s string) paramOption {
+	return func(p *Param) error {
+		p.prefix = s
 		return nil
 	}
 }

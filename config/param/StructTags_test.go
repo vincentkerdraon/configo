@@ -2,6 +2,7 @@ package param
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
 
 	"github.com/vincentkerdraon/configo/config/param/paramname"
@@ -16,7 +17,7 @@ func TestNewParamFromStructTag(t *testing.T) {
 
 	type args struct {
 		i     struct1
-		name  string
+		name  paramname.ParamName
 		parse func(s string) error
 	}
 	tests := []struct {
@@ -80,10 +81,11 @@ func TestNewParamFromStructTag_parse(t *testing.T) {
 	}
 
 	myStruct := &struct1{}
+	_ = myStruct
 
 	type args struct {
 		i     *struct1
-		name  string
+		name  paramname.ParamName
 		parse func(s string) error
 	}
 	tests := []struct {
@@ -172,6 +174,19 @@ func TestNewParamFromStructTag_parse(t *testing.T) {
 				}
 			},
 		},
+		{
+			name: "keep initial value if not overridded",
+			args: args{
+				i:    &struct1{KeySS: "initial", KeyInt: 12},
+				name: "KeySS",
+			},
+			val: "",
+			check: func(t *testing.T, i *struct1) {
+				if i.KeySS != "initial" {
+					t.Errorf("got =%s\n", i.KeySS)
+				}
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -184,6 +199,99 @@ func TestNewParamFromStructTag_parse(t *testing.T) {
 				t.Errorf("Parse() error = %v", err)
 			}
 			tt.check(t, tt.args.i)
+		})
+	}
+}
+
+func TestIterateStructFields(t *testing.T) {
+	type Empty struct{}
+	type NonExported struct {
+		nonExported bool
+	}
+	type Simple struct {
+		A string
+		B uint64
+	}
+	type Complex struct {
+		Empty
+		D Simple
+		Simple
+		C string
+		NonExported
+	}
+
+	type args struct {
+		v interface{}
+		f func(name paramname.ParamName) error
+	}
+	namesReceived := []paramname.ParamName{}
+	tests := []struct {
+		name          string
+		args          args
+		wantErr       bool
+		namesExpected []paramname.ParamName
+	}{
+		{
+			name: "Empty",
+			args: args{
+				v: &Empty{},
+				f: func(name paramname.ParamName) error { t.Fatal(); return nil },
+			},
+			namesExpected: []paramname.ParamName{},
+		},
+		{
+			name: "NonExported",
+			args: args{
+				v: &NonExported{},
+				f: func(name paramname.ParamName) error { t.Fatal(); return nil },
+			},
+			namesExpected: []paramname.ParamName{},
+		},
+		{
+			name: "error",
+			args: args{
+				v: &Simple{},
+				f: func(name paramname.ParamName) error {
+					return fmt.Errorf("err")
+				},
+			},
+			wantErr:       true,
+			namesExpected: []paramname.ParamName{},
+		},
+		{
+			name: "Simple",
+			args: args{
+				v: &Simple{},
+				f: func(name paramname.ParamName) error {
+					namesReceived = append(namesReceived, name)
+					return nil
+				},
+			},
+			namesExpected: []paramname.ParamName{"A", "B"},
+		},
+		{
+			name: "Complex",
+			args: args{
+				v: &Complex{},
+				f: func(name paramname.ParamName) error {
+					namesReceived = append(namesReceived, name)
+					return nil
+				},
+			},
+			// namesExpected: []string{"Empty", "D", "Simple", "C", "NonExported"},
+			namesExpected: []paramname.ParamName{"C"},
+		},
+	}
+	for _, tt := range tests {
+		namesReceived = []paramname.ParamName{}
+		t.Run(tt.name, func(t *testing.T) {
+			if err := IterateStructFields(tt.args.v, tt.args.f); (err != nil) != tt.wantErr {
+				t.Errorf("IterateStructFields() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			// fmt.Printf("\ngot =%T %#v %q\nwant=%T %#v %q", namesReceived, namesReceived, namesReceived, tt.namesExpected, tt.namesExpected, tt.namesExpected)
+			if !reflect.DeepEqual(namesReceived, tt.namesExpected) {
+				t.Errorf("IterateStructFields()\ngot =%v\nwant=%v", namesReceived, tt.namesExpected)
+			}
 		})
 	}
 }

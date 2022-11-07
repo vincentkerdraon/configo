@@ -23,5 +23,4 @@ To do quite the same purpose, see also:
 - parse() returns errors => show usage
 - awssecretmanager BUG when same secret name used. (for example using different regions or accounts)
 - add a logger
-- Improve godoc (see features list on https://pkg.go.dev/github.com/vincentkerdraon/configo)
 - deploy sub modules to https://pkg.go.dev/ (`GOPROXY=proxy.golang.org go list -m github.com/vincentkerdraon/configo/awssecretmanager@v0.1.0`)

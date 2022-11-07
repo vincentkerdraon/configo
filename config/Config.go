@@ -27,6 +27,8 @@ type (
 
 		SubCommand map[subcommand.SubCommand]*Manager
 
+		Callback func()
+
 		//lock prevents race condition, mostly when using sync()
 		lock lock.Locker
 	}
@@ -142,6 +144,16 @@ func WithParams(params ...param.Param) configOptions {
 func WithLoadErrorHandler(f func(_ paramname.ParamName, consecutiveErrNb int, _ error)) configOptions {
 	return func(c *Manager) error {
 		c.LoadErrorHandler = f
+		return nil
+	}
+}
+
+// WithCallback to trigger this function when the parsing is done.
+//
+// Handy for sub commands.
+func WithCallback(f func()) configOptions {
+	return func(c *Manager) error {
+		c.Callback = f
 		return nil
 	}
 }

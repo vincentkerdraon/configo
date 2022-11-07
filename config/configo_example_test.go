@@ -121,15 +121,25 @@ func Example_whenSubCommand() {
 		User: &user,
 	}
 
-	cUserAndAge, err := config.New(config.WithParamsFromStructTag(&userAndAge, ""))
+	cUserAndAge, err := config.New(
+		config.WithParamsFromStructTag(&userAndAge, ""),
+		config.WithDescription("getting User.Name + City"),
+		config.WithCallback(func() {
+			//Triggers when this config (for this SubCommand) has been parsed.
+		}),
+	)
 	handleErr(err)
-	cUserAndCity, err := config.New(config.WithParamsFromStructTag(&userAndCity, ""))
+	cUserAndCity, err := config.New(
+		config.WithParamsFromStructTag(&userAndCity, ""),
+	)
 	handleErr(err)
 
 	cUser, err := config.New(
 		config.WithParamsFromStructTag(&user, ""),
 		config.WithSubCommand("age", cUserAndAge),
 		config.WithSubCommand("city", cUserAndCity),
+		//don't error out if a City flag is provided and this config only declares the flag Name.
+		config.WithIgnoreFlagProvidedNotDefined(true),
 	)
 	handleErr(err)
 

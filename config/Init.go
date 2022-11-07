@@ -27,7 +27,7 @@ func (c *Manager) Init(ctx context.Context, opts ...configInitOptions) error {
 	//Check and run subCommands. With level0=SubCommand("")
 	subCommands, args := c.findSubCommand(ci.InputArgs)
 	subCommands = append([]subcommand.SubCommand{""}, subCommands...)
-	paramsImpl, initFlags, finalValues, err := c.initParams(ctx, subCommands, c)
+	paramsImpl, initFlags, finalValues, cb, err := c.initParams(ctx, subCommands, c)
 	if err != nil {
 		return c.usageWhenConfigError(err)
 	}
@@ -78,6 +78,10 @@ func (c *Manager) Init(ctx context.Context, opts ...configInitOptions) error {
 
 	if aggErr.Errs != nil {
 		return c.usageWhenConfigError(aggErr)
+	}
+
+	if cb != nil {
+		cb() //FIXME test that
 	}
 	return nil
 }
@@ -135,6 +139,7 @@ func (c *Manager) initParams(
 	_ map[paramname.ParamName]*paramImpl,
 	initFlags []func(*flag.FlagSet),
 	finalValues []func() (_ error),
+	callback func(),
 	_ error,
 ) {
 	paramsImpl := map[paramname.ParamName]*paramImpl{}
@@ -146,13 +151,13 @@ func (c *Manager) initParams(
 		paramsImpl[p.Name] = pi
 		initFlag, setValue, err := pi.init(ctx, c.lock)
 		if err != nil {
-			return nil, nil, nil, err
+			return nil, nil, nil, nil, err
 		}
 		initFlags = append(initFlags, initFlag)
 		finalValues = append(finalValues, setValue)
 	}
 	if len(subCmd) == 1 {
-		return paramsImpl, initFlags, finalValues, nil
+		return paramsImpl, initFlags, finalValues, subCmdConfig.Callback, nil
 	}
 	//recursive 1 level down
 	subSubCmdConfig, ok := subCmdConfig.SubCommand[subCmd[1]]
@@ -161,17 +166,17 @@ func (c *Manager) initParams(
 		for k := range subCmdConfig.SubCommand {
 			expected = append(expected, k)
 		}
-		return nil, nil, nil, fmt.Errorf("undefined sub command:%q. Declared %v", subCmd[1], expected)
+		return nil, nil, nil, nil, fmt.Errorf("undefined sub command:%q. Declared %v", subCmd[1], expected)
 	}
-	pis, fss, fvs, err := subCmdConfig.initParams(ctx, subCmd[1:], subSubCmdConfig)
+	pis, fss, fvs, cb, err := subCmdConfig.initParams(ctx, subCmd[1:], subSubCmdConfig)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, nil, nil, err
 	}
 	for k, v := range paramsImpl {
 		pis[k] = v
 	}
 
-	return pis, append(fss, initFlags...), append(fvs, finalValues...), nil
+	return pis, append(fss, initFlags...), append(fvs, finalValues...), cb, nil
 }
 
 func (c *Manager) startSync(

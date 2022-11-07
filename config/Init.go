@@ -166,7 +166,9 @@ func (c *Manager) initParams(
 		for k := range subCmdConfig.SubCommand {
 			expected = append(expected, k)
 		}
-		return nil, nil, nil, nil, fmt.Errorf("undefined sub command:%q. Declared %v", subCmd[1], expected)
+		return nil, nil, nil, nil, errors.ConfigError{
+			SubCommand: subCmd[1],
+			Err:        fmt.Errorf("undefined command. Declared %v", expected)}
 	}
 	pis, fss, fvs, cb, err := subCmdConfig.initParams(ctx, subCmd[1:], subSubCmdConfig)
 	if err != nil {

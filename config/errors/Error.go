@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/vincentkerdraon/configo/config/param/paramname"
+	"github.com/vincentkerdraon/configo/config/subcommand"
 )
 
 type ConfigAggregatedError struct {
@@ -19,20 +20,30 @@ func (err ConfigAggregatedError) Error() string {
 }
 
 type ConfigError struct {
-	Err error
+	SubCommand subcommand.SubCommand
+	Err        error
 }
 
 func (err ConfigError) Error() string {
-	return fmt.Sprintf("ConfigError: %s", err.Err)
+	var res string
+	if err.SubCommand != "" {
+		res = fmt.Sprintf("on SubCommand: %q,", err.SubCommand)
+	}
+	return fmt.Sprintf("%sConfigError: %s", res, err.Err)
 }
 
 type ParamConfigError struct {
-	ParamName paramname.ParamName
-	Err       error
+	SubCommand subcommand.SubCommand
+	ParamName  paramname.ParamName
+	Err        error
 }
 
 func (err ParamConfigError) Error() string {
-	return fmt.Sprintf("ConfigError for Param:%q: %s", err.ParamName, err.Err)
+	var res string
+	if err.SubCommand != "" {
+		res = fmt.Sprintf("on SubCommand: %q,", err.SubCommand)
+	}
+	return fmt.Sprintf("%sConfigError for Param:%q: %s", res, err.ParamName, err.Err)
 }
 
 type ConfigLoadFetchError struct {

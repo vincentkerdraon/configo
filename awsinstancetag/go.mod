@@ -3,7 +3,7 @@ module github.com/vincentkerdraon/configo/awsinstancetag
 go 1.19
 
 require (
-	github.com/aws/aws-sdk-go v1.44.128
+	github.com/aws/aws-sdk-go v1.44.131
 	github.com/aws/aws-sdk-go-v2/config v1.17.10
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.12.19
 )

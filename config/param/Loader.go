@@ -10,7 +10,7 @@ type (
 		//SynchroFrequency=0 means only at startup
 		SynchroFrequency time.Duration
 
-		//Getter is how to fetch data
+		//Getter is how to fetch data from the source
 		Getter GetterFunc
 	}
 

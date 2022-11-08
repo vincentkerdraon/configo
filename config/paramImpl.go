@@ -55,7 +55,7 @@ func (p *paramImpl) init(ctx context.Context, lock lock.Locker, subCommands []su
 		if !hasEnvVarOrFlag && p.Loader.Getter != nil {
 			valLoader, err := p.Loader.Getter(ctx)
 			if err != nil {
-				return errors.ParamConfigError{ParamName: p.Name, SubCommands: subCommands, Err: fmt.Errorf("fail load:%w", err)}
+				return errors.ParamConfigError{ParamName: p.Name, SubCommands: subCommands, Err: errors.ConfigLoaderFetchError{Err: err}}
 			}
 			if valLoader != "" {
 				val = valLoader
@@ -64,7 +64,7 @@ func (p *paramImpl) init(ctx context.Context, lock lock.Locker, subCommands []su
 
 		//Check mandatory
 		if p.IsMandatory && val == "" {
-			return errors.ParamConfigError{ParamName: p.Name, SubCommands: subCommands, Err: fmt.Errorf("mandatory value")}
+			return errors.ParamConfigError{ParamName: p.Name, SubCommands: subCommands, Err: errors.MandatoryValueError}
 		}
 
 		//check enum
@@ -77,7 +77,7 @@ func (p *paramImpl) init(ctx context.Context, lock lock.Locker, subCommands []su
 		//Check exclusive values
 		p.hasValue = (val != "")
 
-		return p.lockAndParse(ctx, lock, val)
+		return p.lockAndParse(ctx, lock, val, subCommands)
 	}
 
 	return initFlag, setValue, nil
@@ -173,22 +173,22 @@ func (p paramImpl) loadFlag(val *string) func(*flag.FlagSet) {
 	}
 }
 
-func (p paramImpl) load(ctx context.Context, lock lock.Locker) error {
+func (p paramImpl) load(ctx context.Context, lock lock.Locker, subCommands []subcommand.SubCommand) error {
 	if p.Loader.Getter == nil {
 		return nil
 	}
 
 	val, err := p.Loader.Getter(ctx)
 	if err != nil {
-		return errors.ConfigLoadFetchError{Err: err}
+		return errors.ConfigLoaderError{Err: errors.ConfigLoaderFetchError{Err: err}}
 	}
-	if err := p.lockAndParse(ctx, lock, val); err != nil {
-		return errors.ConfigLoadParseError{Err: err}
+	if err := p.lockAndParse(ctx, lock, val, subCommands); err != nil {
+		return errors.ConfigLoaderError{Err: err}
 	}
 	return nil
 }
 
-func (p *paramImpl) lockAndParse(ctx context.Context, lock lock.Locker, s string) error {
+func (p *paramImpl) lockAndParse(ctx context.Context, lock lock.Locker, s string, subCommands []subcommand.SubCommand) error {
 	//Because the value is set using outside code, we don't know if it is always quick.
 	//Adding a protection where Timeout can be used.
 	if err := lock.LockWithContext(ctx); err != nil {
@@ -196,5 +196,9 @@ func (p *paramImpl) lockAndParse(ctx context.Context, lock lock.Locker, s string
 	}
 	defer lock.Unlock()
 
-	return p.Parse(s)
+	err := p.Parse(s)
+	if err != nil {
+		return errors.ParamConfigError{ParamName: p.Name, SubCommands: subCommands, Err: errors.ParamParseError{Err: err}}
+	}
+	return nil
 }

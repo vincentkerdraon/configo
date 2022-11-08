@@ -11,6 +11,7 @@ type (
 	//Param represents an input parameter.
 	Param struct {
 		Name paramname.ParamName
+
 		//Parse is the user defined function for this param.
 		//Use to decode and set value to a value.
 		//Same signature as "Set(string) error" in std flag package.
@@ -25,6 +26,7 @@ type (
 		Default           string
 		Exclusive         []paramname.ParamName
 		IsSubCommandLocal bool
+
 		//prefix is only for the construction. If provided, it will be used in Name + Flag.Name + EnvVar.Name
 		prefix string
 	}

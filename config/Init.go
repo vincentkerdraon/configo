@@ -2,7 +2,6 @@ package config
 
 import (
 	"context"
-	stderrors "errors"
 	"flag"
 	"fmt"
 	"io"
@@ -15,6 +14,8 @@ import (
 	"github.com/vincentkerdraon/configo/config/subcommand"
 )
 
+const subCommandLevel0 subcommand.SubCommand = ""
+
 // Init will read the params for the first time and parse the flags
 func (c *Manager) Init(ctx context.Context, opts ...configInitOptions) error {
 	ci := Init{InputArgs: os.Args[1:]}
@@ -24,9 +25,9 @@ func (c *Manager) Init(ctx context.Context, opts ...configInitOptions) error {
 		}
 	}
 
-	//Check and run subCommands. With level0=SubCommand("")
+	//Check and run subCommands. With level0=SubCommand(subCommandLevel0)
 	subCommands, args := c.findSubCommand(ci.InputArgs)
-	paramsImpl, initFlags, finalValues, cb, err := c.initParams(ctx, []subcommand.SubCommand{""}, subCommands, c)
+	paramsImpl, initFlags, finalValues, cb, err := c.initParams(ctx, []subcommand.SubCommand{subCommandLevel0}, subCommands, c)
 	if err != nil {
 		return c.usageWhenConfigError(err)
 	}
@@ -70,7 +71,7 @@ func (c *Manager) Init(ctx context.Context, opts ...configInitOptions) error {
 		if p.Loader.Getter == nil || p.Loader.SynchroFrequency == 0 || p.hasEnvVarOrFlag {
 			continue
 		}
-		if err := c.startSync(ctx, p, c.LoadErrorHandler); err != nil {
+		if err := c.startSync(ctx, p, c.LoadErrorHandler, append([]subcommand.SubCommand{subCommandLevel0}, subCommands...)); err != nil {
 			aggErr.Errs = append(aggErr.Errs, err)
 		}
 	}
@@ -83,59 +84,6 @@ func (c *Manager) Init(ctx context.Context, opts ...configInitOptions) error {
 		cb() //FIXME test that
 	}
 	return nil
-}
-
-// usageWhenConfigError is encapsulating the error to add usage notes.
-func (c *Manager) usageWhenConfigError(err error) error {
-	pce := errors.ParamConfigError{}
-	if stderrors.As(err, &pce) {
-		cmd := c.getSubCommand(pce.SubCommands)
-		if cmd == nil {
-			return err
-		}
-		p, f := cmd.Params[pce.ParamName]
-		if !f {
-			return err
-		}
-		pi := paramImpl{Param: p}
-		return errors.ConfigWithUsageError{
-			Err:   err,
-			Usage: pi.usage(1),
-		}
-	}
-	ce := errors.ConfigError{}
-	if stderrors.As(err, &ce) {
-		cmd := c.getSubCommand(pce.SubCommands)
-		if cmd == nil {
-			return err
-		}
-		return errors.ConfigWithUsageError{
-			Err:   err,
-			Usage: cmd.Usage(0),
-		}
-	}
-	return err
-}
-
-func (c Manager) Usage(indent int) string {
-	indentString := strings.Repeat("\t", indent)
-	var res string
-	append := func(s string) {
-		res += "\n" + indentString + s
-	}
-	if c.Description != "" {
-		append("Config/Command description: " + c.Description + "\n")
-	} else {
-		append("")
-	}
-	for _, p := range c.Params {
-		pi := paramImpl{Param: p}
-		append(pi.usage(indent + 1))
-	}
-	for command, config := range c.SubCommands {
-		append(fmt.Sprintf("Command: %s\n%s", command, config.Usage(indent+1)))
-	}
-	return fmt.Sprintf("%s\n", res)
 }
 
 func (c *Manager) initParams(
@@ -152,7 +100,7 @@ func (c *Manager) initParams(
 ) {
 	paramsImpl := map[paramname.ParamName]*paramImpl{}
 	for _, p := range subCmdConfig.Params {
-		if p.IsSubCommandLocal && len(subCommandsRemaining) > 1 {
+		if p.IsSubCommandLocal && len(subCommandsRemaining) > 0 {
 			continue
 		}
 		pi := &paramImpl{Param: p, hasEnvVarOrFlag: true}
@@ -195,6 +143,7 @@ func (c *Manager) startSync(
 	ctx context.Context,
 	p *paramImpl,
 	syncError func(_ paramname.ParamName, consecutiveErrNb int, _ error),
+	subCommands []subcommand.SubCommand,
 ) error {
 	if p.Loader.Getter == nil {
 		return nil
@@ -211,7 +160,7 @@ func (c *Manager) startSync(
 			case <-ctx.Done():
 				return
 			case <-ticker.C:
-				err := p.load(ctx, c.lock)
+				err := p.load(ctx, c.lock, subCommands)
 				if err == nil {
 					consecutiveErrNb = 0
 					continue
@@ -225,15 +174,15 @@ func (c *Manager) startSync(
 }
 
 // ForceLoad will immediately sync all the params where Load() is defined
-func (c *Manager) ForceLoad(ctx context.Context) error {
-	for _, p := range c.Params {
-		pi := paramImpl{Param: p}
-		if err := pi.load(ctx, c.lock); err != nil {
-			return err
-		}
-	}
-	return nil
-}
+// func (c *Manager) ForceLoad(ctx context.Context) error {
+// 	for _, p := range c.Params {
+// 		pi := paramImpl{Param: p}
+// 		if err := pi.load(ctx, c.lock); err != nil {
+// 			return err
+// 		}
+// 	}
+// 	return nil
+// }
 
 func (c *Manager) findSubCommand(args []string) (_ []subcommand.SubCommand, argsWithoutCommand []string) {
 	res := []subcommand.SubCommand{}
@@ -250,16 +199,4 @@ func (c *Manager) findSubCommand(args []string) (_ []subcommand.SubCommand, args
 		return res, []string{}
 	}
 	return res, args
-}
-
-func (c *Manager) getSubCommand(subCommands []subcommand.SubCommand) *Manager {
-	var res *Manager
-	for _, subCmd := range subCommands {
-		if subCmd == "" {
-			res = c
-			continue
-		}
-		res = res.SubCommands[subCmd]
-	}
-	return res
 }

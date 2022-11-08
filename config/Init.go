@@ -26,8 +26,7 @@ func (c *Manager) Init(ctx context.Context, opts ...configInitOptions) error {
 
 	//Check and run subCommands. With level0=SubCommand("")
 	subCommands, args := c.findSubCommand(ci.InputArgs)
-	subCommands = append([]subcommand.SubCommand{""}, subCommands...)
-	paramsImpl, initFlags, finalValues, cb, err := c.initParams(ctx, subCommands, c)
+	paramsImpl, initFlags, finalValues, cb, err := c.initParams(ctx, []subcommand.SubCommand{""}, subCommands, c)
 	if err != nil {
 		return c.usageWhenConfigError(err)
 	}
@@ -90,7 +89,11 @@ func (c *Manager) Init(ctx context.Context, opts ...configInitOptions) error {
 func (c *Manager) usageWhenConfigError(err error) error {
 	pce := errors.ParamConfigError{}
 	if stderrors.As(err, &pce) {
-		p, f := c.Params[pce.ParamName]
+		cmd := c.getSubCommand(pce.SubCommands)
+		if cmd == nil {
+			return err
+		}
+		p, f := cmd.Params[pce.ParamName]
 		if !f {
 			return err
 		}
@@ -102,9 +105,13 @@ func (c *Manager) usageWhenConfigError(err error) error {
 	}
 	ce := errors.ConfigError{}
 	if stderrors.As(err, &ce) {
+		cmd := c.getSubCommand(pce.SubCommands)
+		if cmd == nil {
+			return err
+		}
 		return errors.ConfigWithUsageError{
 			Err:   err,
-			Usage: c.Usage(0),
+			Usage: cmd.Usage(0),
 		}
 	}
 	return err
@@ -125,7 +132,7 @@ func (c Manager) Usage(indent int) string {
 		pi := paramImpl{Param: p}
 		append(pi.usage(indent + 1))
 	}
-	for command, config := range c.SubCommand {
+	for command, config := range c.SubCommands {
 		append(fmt.Sprintf("Command: %s\n%s", command, config.Usage(indent+1)))
 	}
 	return fmt.Sprintf("%s\n", res)
@@ -133,7 +140,8 @@ func (c Manager) Usage(indent int) string {
 
 func (c *Manager) initParams(
 	ctx context.Context,
-	subCmd []subcommand.SubCommand,
+	subCommandsParent []subcommand.SubCommand,
+	subCommandsRemaining []subcommand.SubCommand,
 	subCmdConfig *Manager,
 ) (
 	_ map[paramname.ParamName]*paramImpl,
@@ -144,33 +152,35 @@ func (c *Manager) initParams(
 ) {
 	paramsImpl := map[paramname.ParamName]*paramImpl{}
 	for _, p := range subCmdConfig.Params {
-		if p.IsSubCommandLocal && len(subCmd) > 1 {
+		if p.IsSubCommandLocal && len(subCommandsRemaining) > 1 {
 			continue
 		}
 		pi := &paramImpl{Param: p, hasEnvVarOrFlag: true}
 		paramsImpl[p.Name] = pi
-		initFlag, setValue, err := pi.init(ctx, c.lock)
+		initFlag, setValue, err := pi.init(ctx, c.lock, subCommandsParent)
 		if err != nil {
 			return nil, nil, nil, nil, err
 		}
 		initFlags = append(initFlags, initFlag)
 		finalValues = append(finalValues, setValue)
 	}
-	if len(subCmd) == 1 {
+	if len(subCommandsRemaining) == 0 {
 		return paramsImpl, initFlags, finalValues, subCmdConfig.Callback, nil
 	}
+
 	//recursive 1 level down
-	subSubCmdConfig, ok := subCmdConfig.SubCommand[subCmd[1]]
+	subCommandsParent = append(subCommandsParent, subCommandsRemaining[0])
+	subSubCmdConfig, ok := subCmdConfig.SubCommands[subCommandsRemaining[0]]
 	if !ok {
 		expected := []subcommand.SubCommand{}
-		for k := range subCmdConfig.SubCommand {
+		for k := range subCmdConfig.SubCommands {
 			expected = append(expected, k)
 		}
 		return nil, nil, nil, nil, errors.ConfigError{
-			SubCommand: subCmd[1],
-			Err:        fmt.Errorf("undefined command. Declared %v", expected)}
+			SubCommands: subCommandsParent,
+			Err:         fmt.Errorf("undefined command. Declared: %v", expected)}
 	}
-	pis, fss, fvs, cb, err := subCmdConfig.initParams(ctx, subCmd[1:], subSubCmdConfig)
+	pis, fss, fvs, cb, err := subCmdConfig.initParams(ctx, subCommandsParent, subCommandsRemaining[1:], subSubCmdConfig)
 	if err != nil {
 		return nil, nil, nil, nil, err
 	}
@@ -240,4 +250,16 @@ func (c *Manager) findSubCommand(args []string) (_ []subcommand.SubCommand, args
 		return res, []string{}
 	}
 	return res, args
+}
+
+func (c *Manager) getSubCommand(subCommands []subcommand.SubCommand) *Manager {
+	var res *Manager
+	for _, subCmd := range subCommands {
+		if subCmd == "" {
+			res = c
+			continue
+		}
+		res = res.SubCommands[subCmd]
+	}
+	return res
 }

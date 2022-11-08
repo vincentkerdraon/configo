@@ -20,28 +20,28 @@ func (err ConfigAggregatedError) Error() string {
 }
 
 type ConfigError struct {
-	SubCommand subcommand.SubCommand
-	Err        error
+	SubCommands []subcommand.SubCommand
+	Err         error
 }
 
 func (err ConfigError) Error() string {
 	var res string
-	if err.SubCommand != "" {
-		res = fmt.Sprintf("on SubCommand: %q,", err.SubCommand)
+	if len(err.SubCommands) != 0 {
+		res = fmt.Sprintf("on SubCommands: %v, ", err.SubCommands)
 	}
 	return fmt.Sprintf("%sConfigError: %s", res, err.Err)
 }
 
 type ParamConfigError struct {
-	SubCommand subcommand.SubCommand
-	ParamName  paramname.ParamName
-	Err        error
+	SubCommands []subcommand.SubCommand
+	ParamName   paramname.ParamName
+	Err         error
 }
 
 func (err ParamConfigError) Error() string {
 	var res string
-	if err.SubCommand != "" {
-		res = fmt.Sprintf("on SubCommand: %q,", err.SubCommand)
+	if len(err.SubCommands) != 0 {
+		res = fmt.Sprintf("on SubCommands: %v, ", err.SubCommands)
 	}
 	return fmt.Sprintf("%sConfigError for Param:%q: %s", res, err.ParamName, err.Err)
 }

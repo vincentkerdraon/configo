@@ -295,3 +295,104 @@ func Example_whenMultiSteps() {
 	// Output:
 	// appConfig.secretID="SecretID_A" appConfig.secretValue="SecretValue_A"
 }
+
+// Example_whenMultipleSubCommand
+func Example_whenMultipleSubCommand() {
+	type User struct {
+		Name string `mandatory:"true"`
+	}
+	type UserAndAge struct {
+		*User
+		Age int `mandatory:"true"`
+	}
+	type UserAndAgeAndCity struct {
+		*UserAndAge
+		City string `mandatory:"true"`
+	}
+	type UserAndAgeAndCityAndJob struct {
+		*UserAndAgeAndCity
+		Job string `mandatory:"true"`
+	}
+
+	user := User{}
+	userAndAge := UserAndAge{
+		User: &user,
+	}
+	userAndAgeAndCity := UserAndAgeAndCity{
+		UserAndAge: &userAndAge,
+	}
+	userAndAgeAndCityAndJob := UserAndAgeAndCityAndJob{
+		UserAndAgeAndCity: &userAndAgeAndCity,
+	}
+
+	cUserAndAgeAndCityAndJob, err := config.New(
+		config.WithParamsFromStructTag(&userAndAgeAndCityAndJob, ""),
+	)
+	handleErr(err)
+
+	cUserAndAgeAndCity, err := config.New(
+		config.WithParamsFromStructTag(&userAndAgeAndCity, ""),
+		config.WithSubCommand("job", cUserAndAgeAndCityAndJob),
+		config.WithCallback(func() {
+			//Triggers when this config (for this SubCommand) has been parsed.
+		}),
+	)
+	handleErr(err)
+
+	cUserAndAge, err := config.New(
+		config.WithParamsFromStructTag(&userAndAge, ""),
+		config.WithSubCommand("city", cUserAndAgeAndCity),
+		//don't error out if a City|Job flag is provided and this config only declares the flag Name+Age.
+		config.WithIgnoreFlagProvidedNotDefined(true),
+		config.WithCallback(func() {
+			//Triggers when this config (for this SubCommand) has been parsed.
+			//Example blocking this sub command alone.
+			panic(`fail use subcommand "age" alone. Either use no subcommand or use "age city" or use "age city job"`)
+		}),
+	)
+	handleErr(err)
+
+	cUser, err := config.New(
+		config.WithParamsFromStructTag(&user, ""),
+		config.WithSubCommand("age", cUserAndAge),
+		//don't error out if a Age|City|Job flag is provided and this config only declares the flag Name+Age.
+		config.WithIgnoreFlagProvidedNotDefined(true),
+		config.WithCallback(func() {
+			//Triggers when this config (for this SubCommand) has been parsed.
+		}),
+	)
+	handleErr(err)
+
+	err = cUser.Init(
+		context.Background(),
+		//(For this example) Forcing what we receive in the command line. Default is os.Args[1:]
+		config.WithInputArgs([]string{"age", "city", "job", "-Job=dev", "-Name=Vincent", "-Age=35", "-City=Vancouver"}),
+	)
+	handleErr(err)
+
+	fmt.Printf("Name:%q, Age:%d, City:%q, Job:%q",
+		userAndAgeAndCityAndJob.Name, userAndAgeAndCityAndJob.Age, userAndAgeAndCityAndJob.City, userAndAgeAndCityAndJob.Job)
+
+	err = cUser.Init(
+		context.Background(),
+		//(For this example) Forcing what we receive in the command line. Default is os.Args[1:]
+		config.WithInputArgs([]string{"age", "city"}),
+	)
+	if err == nil {
+		panic("expected error")
+	}
+	fmt.Println("\n\nAnd usage example with SubCommands =>")
+	fmt.Println(err)
+
+	// Output:
+	// Name:"Vincent", Age:35, City:"Vancouver", Job:"dev"
+	//
+	// And usage example with SubCommands =>
+	// ConfigWithUsageError: on SubCommands: [ age city], ConfigError for Param:"City": mandatory value
+	// Usage:
+	// 	Param: City
+	// 		Mandatory value.
+	// 		Command line flag: -City
+	// 		Environment variable name: City
+	// 		No custom loader defined.
+}

@@ -9,6 +9,7 @@ import (
 
 	"github.com/vincentkerdraon/configo/config/errors"
 	"github.com/vincentkerdraon/configo/config/param"
+	"github.com/vincentkerdraon/configo/config/subcommand"
 	"github.com/vincentkerdraon/configo/lock"
 )
 
@@ -28,7 +29,7 @@ type paramImpl struct {
 	hasEnvVarOrFlag bool
 }
 
-func (p *paramImpl) init(ctx context.Context, lock lock.Locker) (initFlag func(*flag.FlagSet), setValue func() error, _ error) {
+func (p *paramImpl) init(ctx context.Context, lock lock.Locker, subCommands []subcommand.SubCommand) (initFlag func(*flag.FlagSet), setValue func() error, _ error) {
 	var hasEnvVarOrFlag bool
 	val := p.Default
 
@@ -54,7 +55,7 @@ func (p *paramImpl) init(ctx context.Context, lock lock.Locker) (initFlag func(*
 		if !hasEnvVarOrFlag && p.Loader.Getter != nil {
 			valLoader, err := p.Loader.Getter(ctx)
 			if err != nil {
-				return errors.ParamConfigError{ParamName: p.Name, Err: fmt.Errorf("fail load:%w", err)}
+				return errors.ParamConfigError{ParamName: p.Name, SubCommands: subCommands, Err: fmt.Errorf("fail load:%w", err)}
 			}
 			if valLoader != "" {
 				val = valLoader
@@ -63,7 +64,7 @@ func (p *paramImpl) init(ctx context.Context, lock lock.Locker) (initFlag func(*
 
 		//Check mandatory
 		if p.IsMandatory && val == "" {
-			return errors.ParamConfigError{ParamName: p.Name, Err: fmt.Errorf("mandatory value")}
+			return errors.ParamConfigError{ParamName: p.Name, SubCommands: subCommands, Err: fmt.Errorf("mandatory value")}
 		}
 
 		//check enum
@@ -91,7 +92,7 @@ func (p paramImpl) checkEnum(val string) error {
 			return nil
 		}
 	}
-	return errors.ParamConfigError{ParamName: p.Name, Err: fmt.Errorf("got value:%q, expect one of:%v", val, p.EnumValues)}
+	return fmt.Errorf("got value:%q, expect one of:%v", val, p.EnumValues)
 }
 
 func (p paramImpl) usage(indent int) string {

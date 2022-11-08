@@ -25,7 +25,7 @@ type (
 		//LoadErrorHandler is called when an error happens using Loader
 		LoadErrorHandler func(_ paramname.ParamName, consecutiveErrNb int, _ error)
 
-		SubCommand map[subcommand.SubCommand]*Manager
+		SubCommands map[subcommand.SubCommand]*Manager
 
 		Callback func()
 
@@ -46,8 +46,8 @@ func LoadErrorHandlerDefault(name paramname.ParamName, consecutiveErrNb int, err
 
 func New(opts ...configOptions) (*Manager, error) {
 	c := Manager{
-		Params:     make(map[paramname.ParamName]param.Param),
-		SubCommand: make(map[subcommand.SubCommand]*Manager),
+		Params:      make(map[paramname.ParamName]param.Param),
+		SubCommands: make(map[subcommand.SubCommand]*Manager),
 	}
 	for _, opt := range opts {
 		if err := opt(&c); err != nil {
@@ -74,10 +74,10 @@ func WithSubCommand(subCommand subcommand.SubCommand, config *Manager) configOpt
 		if len(subCommand) == 0 {
 			return errors.ConfigError{Err: fmt.Errorf("subcommands name can't be empty")}
 		}
-		if _, f := c.SubCommand[subCommand]; f {
+		if _, f := c.SubCommands[subCommand]; f {
 			return errors.ConfigError{Err: fmt.Errorf("2 subcommands have the same name (id)")}
 		}
-		c.SubCommand[subCommand] = config
+		c.SubCommands[subCommand] = config
 		return nil
 	}
 }

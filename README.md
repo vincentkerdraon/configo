@@ -12,14 +12,12 @@ https://pkg.go.dev/github.com/vincentkerdraon/configo
 To do quite the same purpose, see also:
 - https://micro.dev/blog/2018/07/04/go-config.html
 - https://github.com/spf13/viper + https://github.com/spf13/cobra
-- 
 
 ## TODO
 
 - Auto completion in bash
 - create param.NewBool calling param.New but with the parse func `func(b bool) error` + other common types
 - reader JSON with sub keys and arrays
-- parse() returns errors => show usage
 - awssecretmanager BUG when same secret name used. (for example using different regions or accounts)
 - add a logger
 - deploy sub modules to https://pkg.go.dev/ (`GOPROXY=proxy.golang.org go list -m github.com/vincentkerdraon/configo/awssecretmanager@v0.1.0`)

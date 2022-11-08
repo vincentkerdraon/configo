@@ -84,5 +84,5 @@ func (err ParamParseError) Error() string {
 	return fmt.Sprintf("ParamParseError: %s", err.Err)
 }
 
-var MandatoryValueError = errors.New("mandatory value")
-var LoaderFetchError = errors.New("fail loader on fetch")
+var ErrMandatoryValue = errors.New("mandatory value")
+var ErrLoaderFetch = errors.New("fail loader on fetch")

@@ -27,7 +27,7 @@ type (
 		Exclusive         []paramname.ParamName
 		IsSubCommandLocal bool
 
-		//prefix is only for the construction. If provided, it will be used in Name + Flag.Name + EnvVar.Name
+		//prefix is only for the construction. If provided, it is used in Name + Flag.Name + EnvVar.Name
 		prefix string
 	}
 
@@ -118,7 +118,7 @@ func WithExclusive(params ...paramname.ParamName) paramOption {
 	}
 }
 
-// WithEnumValues defines exactly the values that can be use. Anything else will lead to an error.
+// WithEnumValues defines exactly the values that can be use. Anything else leads to an error.
 func WithEnumValues(s ...string) paramOption {
 	return func(p *Param) error {
 		p.EnumValues = s

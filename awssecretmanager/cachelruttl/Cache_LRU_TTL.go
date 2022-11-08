@@ -1,6 +1,6 @@
 // Package cachelruttl is a naive implementation of a cache to use with awssecretmanager.
 //
-// LRU: the size is fixed, it will start removing old entries when full.
+// LRU: the size is fixed, it starts removing old entries when full.
 //
 // TTL: it will not return old entries. Time precision: second.
 // Old entries will still be in the cache, but filtered out on the Get().

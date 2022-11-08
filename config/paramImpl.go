@@ -64,7 +64,7 @@ func (p *paramImpl) init(ctx context.Context, lock lock.Locker, subCommands []su
 
 		//Check mandatory
 		if p.IsMandatory && val == "" {
-			return errors.ParamConfigError{ParamName: p.Name, SubCommands: subCommands, Err: errors.MandatoryValueError}
+			return errors.ParamConfigError{ParamName: p.Name, SubCommands: subCommands, Err: errors.ErrMandatoryValue}
 		}
 
 		//check enum

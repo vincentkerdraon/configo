@@ -12,7 +12,7 @@ import (
 )
 
 type (
-	//Manager contains the parameters definition and will do the actual parsing and sync logic.
+	//Manager contains the parameters definition and does the actual parsing and sync logic.
 	Manager struct {
 		Params map[paramname.ParamName]param.Param
 		// IgnoreFlagProvidedNotDefined when need to ignore some flags.
@@ -100,11 +100,11 @@ func WithIgnoreFlagProvidedNotDefined(t bool) configOptions {
 	}
 }
 
-// WithParamsFromStructTag will automatically read the struct, using struct tags when defined.
+// WithParamsFromStructTag automatically reads the struct, using struct tags when defined.
 //
 // Can be called multiple times.
-// This will use default options for all params.
-// This will panic in case of configuration error.
+// This uses default options for all params.
+// This panics in case of configuration error.
 func WithParamsFromStructTag(in interface{}, prefix string) configOptions {
 	return func(c *Manager) error {
 		params, err := param.ParamsFromStructTag(in, prefix)

@@ -16,7 +16,7 @@ import (
 
 const subCommandLevel0 subcommand.SubCommand = ""
 
-// Init will read the params for the first time and parse the flags
+// Init reads the params for the first time and parses the flags
 func (c *Manager) Init(ctx context.Context, opts ...configInitOptions) error {
 	ci := Init{InputArgs: os.Args[1:]}
 	for _, opt := range opts {
@@ -81,7 +81,7 @@ func (c *Manager) Init(ctx context.Context, opts ...configInitOptions) error {
 	}
 
 	if cb != nil {
-		cb() //FIXME test that
+		cb()
 	}
 	return nil
 }
@@ -173,7 +173,7 @@ func (c *Manager) startSync(
 	return nil
 }
 
-// ForceLoad will immediately sync all the params where Load() is defined
+// ForceLoad immediately syncs all the params where Load() is defined
 // func (c *Manager) ForceLoad(ctx context.Context) error {
 // 	for _, p := range c.Params {
 // 		pi := paramImpl{Param: p}

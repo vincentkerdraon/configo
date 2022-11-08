@@ -31,8 +31,8 @@ func New() *Lock {
 	return &Lock{lockCh: make(chan struct{}, 1)}
 }
 
-// Lock will bock other calls until Unlock() is called or the context is cancelled.
-// It will forward the context error when cancelled.
+// LockWithContext bocks other calls until Unlock() is called or the context is cancelled.
+// It forwards the context error when cancelled.
 func (l *Lock) LockWithContext(ctx context.Context) error {
 	select {
 	case <-ctx.Done():
@@ -42,7 +42,7 @@ func (l *Lock) LockWithContext(ctx context.Context) error {
 	}
 }
 
-// Lock will bock other calls until Unlock() is called.
+// Lock bocks other calls until Unlock() is called.
 //
 // See LockWithContext()
 func (l *Lock) Lock() {

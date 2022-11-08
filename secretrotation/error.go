@@ -16,4 +16,4 @@ func (err InvalidSecretError) Error() string {
 	return fmt.Sprintf("Invalid secret, %s", err.Err)
 }
 
-func (e InvalidSecretError) Unwrap() error { return e.Err }
+func (err InvalidSecretError) Unwrap() error { return err.Err }

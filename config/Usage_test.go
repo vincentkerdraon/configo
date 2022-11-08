@@ -210,7 +210,7 @@ func TestManagerUsage(t *testing.T) {
 				Err: errors.ParamConfigError{
 					SubCommands: []subcommand.SubCommand{subCommandLevel0},
 					ParamName:   "p1",
-					Err:         errors.MandatoryValueError,
+					Err:         errors.ErrMandatoryValue,
 				},
 				Usage: "\tParam: p1\n\t\tMandatory value.\n\t\tCommand line flag: -p1\n\t\tEnvironment variable name: p1\n\t\tNo custom loader defined.\n",
 			},

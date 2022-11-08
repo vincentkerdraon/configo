@@ -6,11 +6,13 @@ Helper for the default format available from the console:
   - JSON.
 
 Rotation state:
+
   - disable: there is only one value.
+
   - enable: a lambda is rotating the secret. Retriving values for Previous + Current + Pending
 
-  ----
-  
+    ----
+
 Policy setup + lambda setup
 
 https://github.com/aws-samples/aws-secrets-manager-rotation-lambdas

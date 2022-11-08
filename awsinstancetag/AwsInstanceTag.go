@@ -12,7 +12,7 @@
 //   - NOT using "http://169.254.169.254/latest/user-data"
 //   - NOT using "http://169.254.169.254/latest/meta-data"
 //
-// It will return a custom error for common catch errors (Like "not on AWS" or "instance metadata not configured")
+// It returns a custom error for common catch errors (Like "not on AWS" or "instance metadata not configured")
 package awsinstancetag
 
 import (
@@ -41,7 +41,7 @@ type (
 //
 // First, it gets the InstanceIdentityDocument for the InstanceID + region. Then it creates a new session with the region and finally it calls DescribeInstances.
 //
-// It will use CreateEC2sDefault() if ec2s is null.
+// It uses CreateEC2sDefault() if ec2s is null.
 func Load(
 	ctx context.Context,
 	ims AWSInstanceMetadataService,
@@ -68,7 +68,7 @@ func Load(
 
 	//Creating another session to call ec2 DescribeInstances
 	//The session creation is injected, because there are many ways of doing it.
-	//Default will assume the credentials are already in the chain.
+	//Default assumes the credentials are already in the chain.
 	if ec2s == nil {
 		ec2s = CreateEC2sDefault
 	}

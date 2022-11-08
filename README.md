@@ -10,7 +10,9 @@ https://pkg.go.dev/github.com/vincentkerdraon/configo
 ## Competitors
 
 To do quite the same purpose, see also:
-- //FIXME
+- https://micro.dev/blog/2018/07/04/go-config.html
+- https://github.com/spf13/viper + https://github.com/spf13/cobra
+- 
 
 ## TODO
 

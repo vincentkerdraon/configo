@@ -67,7 +67,7 @@ func (m *Manager) Allowed(in Secret) bool {
 	var ok bool
 	inB := []byte(in)
 	rs.Range(func(s Secret) (continueRange bool) {
-		if 1 == subtle.ConstantTimeCompare(inB, []byte(s)) {
+		if subtle.ConstantTimeCompare(inB, []byte(s)) == 1 {
 			//returning early when having the solution is ok
 			ok = true
 			return false

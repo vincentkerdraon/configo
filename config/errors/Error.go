@@ -34,6 +34,7 @@ func (err ConfigError) Error() string {
 	}
 	return fmt.Sprintf("%sConfigError: %s", res, err.Err)
 }
+func (err ConfigError) Unwrap() error { return err.Err }
 
 type ParamConfigError struct {
 	SubCommands []subcommand.SubCommand
@@ -50,6 +51,7 @@ func (err ParamConfigError) Error() string {
 	}
 	return fmt.Sprintf("%sConfigError for Param:%q: %s", res, err.ParamName, err.Err)
 }
+func (err ParamConfigError) Unwrap() error { return err.Err }
 
 type ConfigLoaderError struct {
 	Err error
@@ -58,6 +60,7 @@ type ConfigLoaderError struct {
 func (err ConfigLoaderError) Error() string {
 	return fmt.Sprintf("ConfigLoaderError: %s", err.Err)
 }
+func (err ConfigLoaderError) Unwrap() error { return err.Err }
 
 type ConfigLoaderFetchError struct {
 	Err error
@@ -66,6 +69,7 @@ type ConfigLoaderFetchError struct {
 func (err ConfigLoaderFetchError) Error() string {
 	return fmt.Sprintf("ConfigLoaderFetchError: %s", err.Err)
 }
+func (err ConfigLoaderFetchError) Unwrap() error { return err.Err }
 
 type ConfigWithUsageError struct {
 	Err   error
@@ -75,6 +79,7 @@ type ConfigWithUsageError struct {
 func (err ConfigWithUsageError) Error() string {
 	return fmt.Sprintf("ConfigWithUsageError: %s\nUsage:\n%s", err.Err, err.Usage)
 }
+func (err ConfigWithUsageError) Unwrap() error { return err.Err }
 
 type ParamParseError struct {
 	Err error
@@ -83,6 +88,7 @@ type ParamParseError struct {
 func (err ParamParseError) Error() string {
 	return fmt.Sprintf("ParamParseError: %s", err.Err)
 }
+func (err ParamParseError) Unwrap() error { return err.Err }
 
 var ErrMandatoryValue = errors.New("mandatory value")
 var ErrLoaderFetch = errors.New("fail loader on fetch")

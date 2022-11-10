@@ -19,6 +19,7 @@ type (
 	}
 
 	AWSSecretsManager interface {
+		//GetSecretValueWithContext grabs the secrets. In case of error, it will retry as per the AWS session configuration.
 		GetSecretValueWithContext(ctx context.Context, input *secretsmanager.GetSecretValueInput, opts ...request.Option) (*secretsmanager.GetSecretValueOutput, error)
 	}
 

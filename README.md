@@ -20,4 +20,5 @@ To do quite the same purpose, see also:
 - reader JSON with sub keys and arrays
 - awssecretmanager BUG when same secret name used. (for example using different regions or accounts)
 - add a logger
-- deploy sub modules to https://pkg.go.dev/ (`GOPROXY=proxy.golang.org go list -m github.com/vincentkerdraon/configo/awssecretmanager@v0.1.0`)
+- improve Competitors list
+- awssecretmanager lambda and doc

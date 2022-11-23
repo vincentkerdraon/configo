@@ -42,9 +42,10 @@ var _ Manager = (*impl)(nil)
 
 // New creates a manager.
 //
-// svcSecretManager is the aws service.
+// svcSecretManager is the AWS service.
 //
-// cache=nil means no cache. A cache with TTL is a recommended.
+// cache=nil means no cache. A cache with TTL is recommended to increase speed and reduce cost.
+// See cachelruttl.
 func New(svcSecretManager AWSSecretsManager, cache Cache) *impl {
 	return &impl{
 		svcSecretManager: svcSecretManager,
@@ -55,7 +56,7 @@ func New(svcSecretManager AWSSecretsManager, cache Cache) *impl {
 
 // LoadValue is a helper to load a non-rotating value from the secret manager.
 //
-// SecretKey is the JSON key (a secret can store multiple values, see aws doc)
+// SecretKey is the JSON key (a secret can store multiple values, see AWS doc)
 func (sm *impl) LoadValueWhenJSON(ctx context.Context, secretName string, secretKey string) (_ *secretrotation.Secret, fromCache bool, _ error) {
 
 	decode := func(val *secretrotation.Secret) (*secretrotation.Secret, error) {

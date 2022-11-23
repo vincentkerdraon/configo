@@ -125,7 +125,7 @@ func initConfigWhenLoadRotatingSecretWhenJSON(svcSecretManager awssecretmanager.
 }
 
 func initAws() *secretsmanager.SecretsManager {
-	//To execute this test, assuming you have aws credentials. Set your own credential configuration.
+	//To execute this test, assuming you have AWS credentials. Set your own credential configuration.
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		Config: aws.Config{
 			// Credentials: credentials.New NewStaticCredentials("AKIAYTQSIPFQQ4OJSYW3", "", ""),

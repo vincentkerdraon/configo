@@ -223,7 +223,7 @@ func handleErr(err error) {
 	}
 }
 
-// When we need a part of the configuration to define another part. For example the name of the aws secret manager key to use.
+// When we need a part of the configuration to define another part. For example the name of the AWS secret manager key to use.
 //
 // Focus on `config.WithIgnoreFlagProvidedNotDefined(true)`
 func Example_whenMultiSteps() {

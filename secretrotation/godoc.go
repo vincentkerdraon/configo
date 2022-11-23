@@ -12,11 +12,11 @@ The reason for the 3 secrets is we always want a valid secret, given:
 
 Assertions:
   - The refresh rate on the Providers and Consumers is faster than the secret rotation frequency in the secret holder.
-  - We have 3 secrets: {PREVIOUS,CURRENT,PENDING}. This is AWS design but that seems robust.
+  - We have 3 secrets: {PREVIOUS,CURRENT,PENDING}. This is AWS design and that seems robust.
 
 See: https://docs.aws.amazon.com/secretsmanager/latest/userguide/getting-started.html
 
 Alternative similar design:
-  - store only 2 secrets in the SecretHolder but with the change time, and share rotation duration details with the consumer. (A lot more complicated)
+  - Store only 2 secrets in the SecretHolder but with the change time, and share rotation duration details with the consumer. (A lot more complicated)
 */
 package secretrotation

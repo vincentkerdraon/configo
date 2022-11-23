@@ -26,7 +26,7 @@ func Example_Load() {
 	iid, dio, err := awsinstancetag.Load(context.Background(), client, nil)
 
 	if errors.Is(err, awsinstancetag.UnreachableInstanceIdentityDocumentError{}) {
-		fmt.Printf("Probably not running on aws instance")
+		fmt.Printf("Probably not running on AWS instance")
 		os.Exit(1)
 	}
 	if errors.Is(err, awsinstancetag.ForbiddenInstanceTagReadingError{}) {

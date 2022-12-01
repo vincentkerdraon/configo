@@ -28,7 +28,16 @@ func literalStore(s string, v reflect.Value) error {
 	//inspired by std json decode: func (d *decodeState) literalStore()
 	//heavily modified.
 
-	//TODO get a pointer to the value and use interface "Set(string) error" if defined.
+	// use interface "Set(string) error" if defined. See std flag lib for flag.Var()
+	if v.CanInterface() {
+		type setter interface {
+			Set(string) error
+		}
+
+		if setter, ok := v.Interface().(setter); ok {
+			return setter.Set(s)
+		}
+	}
 
 	switch v.Kind() {
 	default:
@@ -76,6 +85,8 @@ func literalStore(s string, v reflect.Value) error {
 	return nil
 }
 
+// NewParamFromStructTag tries to automatically define a param using reflection on the struct.
+// If parse is null, it tries to do the matching (best effort).
 func NewParamFromStructTag(
 	v interface{},
 	name paramname.ParamName,
@@ -188,6 +199,7 @@ func ParamsFromStructTag(
 // IterateStructFields finds all the exported fields in a *struct.
 //
 // Input MUST be a pointer to the struct. To avoid `reflect: Elem of invalid type`.
+// This ignores all the struct fields. You have to make explicit.
 // This is mostly a helper to call NewParamFromStructTag on every fields with some added logic like a name prefix.
 func IterateStructFields(
 	v interface{},
@@ -197,6 +209,12 @@ func IterateStructFields(
 	if typeOfV.Kind() != reflect.Ptr {
 		return fmt.Errorf("expect Ptr, got %s", typeOfV.Kind())
 	}
+
+	//Return nice error in case of double pointer
+	// if reflect.TypeOf(typeOfV).Kind() == reflect.Ptr {
+	// 	return fmt.Errorf("expect Ptr, got double pointer")
+	// }
+
 	st := typeOfV.Elem()
 	for i := 0; i < st.NumField(); i++ {
 		field := st.Field(i)

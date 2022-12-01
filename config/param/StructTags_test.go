@@ -70,6 +70,19 @@ func TestNewParamFromStructTag(t *testing.T) {
 	}
 }
 
+type interfaceWithSetter struct {
+	val       string
+	unchanged string
+}
+
+func (i *interfaceWithSetter) Set(s string) error {
+	if s == "err" {
+		return fmt.Errorf("err")
+	}
+	i.val = s
+	return nil
+}
+
 func TestNewParamFromStructTag_parse(t *testing.T) {
 	type SuperString string
 	type struct1 struct {
@@ -78,10 +91,15 @@ func TestNewParamFromStructTag_parse(t *testing.T) {
 		KeyUint8   uint8
 		KeyFloat32 float32
 		KeyBool    bool
+		ISetter    *interfaceWithSetter
 	}
 
-	myStruct := &struct1{}
-	_ = myStruct
+	myStruct1 := &struct1{
+		ISetter: &interfaceWithSetter{
+			unchanged: "unchanged",
+		},
+	}
+	_ = myStruct1
 
 	type args struct {
 		i     *struct1
@@ -98,9 +116,9 @@ func TestNewParamFromStructTag_parse(t *testing.T) {
 		{
 			name: "custom parse provided",
 			args: args{
-				i:     myStruct,
+				i:     myStruct1,
 				name:  "KeySS",
-				parse: func(s string) error { myStruct.KeySS = SuperString(fmt.Sprintf("_%s_", s)); return nil },
+				parse: func(s string) error { myStruct1.KeySS = SuperString(fmt.Sprintf("_%s_", s)); return nil },
 			},
 			val: "customParse",
 			check: func(t *testing.T, i *struct1) {
@@ -112,7 +130,7 @@ func TestNewParamFromStructTag_parse(t *testing.T) {
 		{
 			name: "parse auto: custom type string",
 			args: args{
-				i:    myStruct,
+				i:    myStruct1,
 				name: "KeySS",
 			},
 			val: "valueS",
@@ -125,7 +143,7 @@ func TestNewParamFromStructTag_parse(t *testing.T) {
 		{
 			name: "parse auto: int",
 			args: args{
-				i:    myStruct,
+				i:    myStruct1,
 				name: "KeyInt",
 			},
 			val: "12",
@@ -138,7 +156,7 @@ func TestNewParamFromStructTag_parse(t *testing.T) {
 		{
 			name: "parse auto: uint8",
 			args: args{
-				i:    myStruct,
+				i:    myStruct1,
 				name: "KeyUint8",
 			},
 			val: "12",
@@ -151,7 +169,7 @@ func TestNewParamFromStructTag_parse(t *testing.T) {
 		{
 			name: "parse auto: float32",
 			args: args{
-				i:    myStruct,
+				i:    myStruct1,
 				name: "KeyFloat32",
 			},
 			val: "12.12",
@@ -164,7 +182,7 @@ func TestNewParamFromStructTag_parse(t *testing.T) {
 		{
 			name: "parse auto: bool",
 			args: args{
-				i:    myStruct,
+				i:    myStruct1,
 				name: "KeyBool",
 			},
 			val: "true",
@@ -184,6 +202,22 @@ func TestNewParamFromStructTag_parse(t *testing.T) {
 			check: func(t *testing.T, i *struct1) {
 				if i.KeySS != "initial" {
 					t.Errorf("got =%s\n", i.KeySS)
+				}
+			},
+		},
+		{
+			name: "interfaceWithSetter",
+			args: args{
+				name: "ISetter",
+				i:    myStruct1,
+			},
+			val: "value",
+			check: func(t *testing.T, i *struct1) {
+				if i.ISetter.unchanged != "unchanged" {
+					t.Errorf("lost sister value in struct\n")
+				}
+				if i.ISetter.val != "value" {
+					t.Errorf("got =%s\n", i.ISetter.val)
 				}
 			},
 		},

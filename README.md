@@ -22,3 +22,4 @@ To do quite the same purpose, see also:
 - add a logger
 - improve Competitors list
 - awssecretmanager lambda and doc
+- WithCallback should be `func() error`

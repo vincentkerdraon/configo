@@ -99,6 +99,52 @@ func Example_whenStructTagsStyle() {
 	// {Name:Vincent City:Vancouver Age:35 nonExportedField:}
 }
 
+const AgeDefault = 10
+
+type AgeWithSetter struct {
+	age int
+}
+
+func (a *AgeWithSetter) Set(s string) error {
+	var err error
+	a.age, err = strconv.Atoi(s)
+	return err
+}
+
+// Using the struct tags style (similar to the json package) to define field by field.
+// Close to Example_whenStructTagsStyle, but with more control on the field definition.
+func Example_whenStructTagsStyleByField() {
+	type City string
+
+	user := struct {
+		AgeWithSetter *AgeWithSetter `flag:"Age" default:"36"`
+	}{
+		AgeWithSetter: &AgeWithSetter{},
+	}
+
+	p, err := param.NewParamFromStructTag(&user, "AgeWithSetter",
+		//`parse func(s string) error` is not defined, it will try to auto match. In this case using `Set(s string) error`
+		nil,
+		//all the usual options are available. Useful for dynamic values for example.
+		//Options similar to struct tags will override. E.g. here default=36 in struct tags, but redefined as default=10 on the next line.
+		param.WithDefault(strconv.Itoa(AgeDefault)))
+	handleErr(err)
+
+	c, err := config.New(config.WithParams(p))
+	handleErr(err)
+	err = c.Init(
+		context.Background(),
+		//(For this example) Forcing what we receive in the command line. Default is os.Args[1:]
+		// config.WithInputArgs([]string{"-Age=35"}),
+		config.WithInputArgs([]string{}),
+	)
+	handleErr(err)
+
+	fmt.Printf("%+v", user.AgeWithSetter)
+	// Output:
+	// &{age:10}
+}
+
 // Using a command (like "git commit").
 func Example_whenSubCommand() {
 	type User struct {

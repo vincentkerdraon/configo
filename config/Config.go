@@ -104,12 +104,12 @@ func WithIgnoreFlagProvidedNotDefined(t bool) configOptions {
 //
 // Can be called multiple times.
 // This uses default options for all params.
-// This panics in case of configuration error.
+// This ignores the struct fields or embedded struct. (Needs to be explicit.)
 func WithParamsFromStructTag(in interface{}, prefix string) configOptions {
 	return func(c *Manager) error {
 		params, err := param.ParamsFromStructTag(in, prefix)
 		if err != nil {
-			panic(err)
+			return err
 		}
 		return WithParams(params...)(c)
 	}

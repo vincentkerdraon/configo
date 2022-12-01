@@ -47,7 +47,7 @@ func initConfigWhenLoadValueWhenPlainText(svcSecretManager awssecretmanager.AWSS
 
 	lock := lock.New()
 	c, err := config.New(
-		config.WithParams(*pDynamoTable),
+		config.WithParams(pDynamoTable),
 		config.WithLock(lock),
 	)
 	if err != nil {
@@ -102,7 +102,7 @@ func initConfigWhenLoadRotatingSecretWhenJSON(svcSecretManager awssecretmanager.
 
 	lock := lock.New()
 	c, err := config.New(
-		config.WithParams(*pAPISecret),
+		config.WithParams(pAPISecret),
 		config.WithLock(lock),
 	)
 	if err != nil {

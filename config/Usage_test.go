@@ -29,7 +29,7 @@ func TestConfig_usageWhenConfigError(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	cCity, err := New(WithParams(*pCity), WithDescription("A city reader"))
+	cCity, err := New(WithParams(pCity), WithDescription("A city reader"))
 	if err != nil {
 		t.Error(err)
 	}
@@ -43,7 +43,7 @@ func TestConfig_usageWhenConfigError(t *testing.T) {
 		t.Error(err)
 	}
 
-	cAgeCommandCity, err := New(WithParams(*pAge), WithSubCommand("City", cCity), WithDescription("An age reader with a command for city"))
+	cAgeCommandCity, err := New(WithParams(pAge), WithSubCommand("City", cCity), WithDescription("An age reader with a command for city"))
 	if err != nil {
 		t.Error(err)
 	}
@@ -152,7 +152,7 @@ func TestManagerUsage(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	s1, err := New(WithParams(*s1p1))
+	s1, err := New(WithParams(s1p1))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -161,7 +161,7 @@ func TestManagerUsage(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	s2, err := New(WithParams(*s2p1))
+	s2, err := New(WithParams(s2p1))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -171,7 +171,7 @@ func TestManagerUsage(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	s3, err := New(WithParams(*s3p1))
+	s3, err := New(WithParams(s3p1))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -181,7 +181,7 @@ func TestManagerUsage(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	s4, err := New(WithParams(*s4p1))
+	s4, err := New(WithParams(s4p1))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -190,7 +190,7 @@ func TestManagerUsage(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	s5, err := New(WithParams(*s5p1))
+	s5, err := New(WithParams(s5p1))
 	if err != nil {
 		t.Fatal(err)
 	}

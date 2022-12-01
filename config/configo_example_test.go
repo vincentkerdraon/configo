@@ -60,7 +60,7 @@ func Example_whenDeclarativeStyle() {
 	)
 	handleErr(err)
 
-	c, err := config.New(config.WithParams(*pName, *pCity, *pAge))
+	c, err := config.New(config.WithParams(pName, pCity, pAge))
 	handleErr(err)
 	err = c.Init(
 		context.Background(),
@@ -184,7 +184,7 @@ func initConfigWithSync() func() user {
 
 	lock := lock.New()
 	c, err := config.New(
-		config.WithParams(*pName),
+		config.WithParams(pName),
 		config.WithLock(lock),
 	)
 	handleErr(err)
@@ -245,7 +245,7 @@ func Example_whenMultiSteps() {
 	}
 
 	configManager, err := config.New(
-		config.WithParams(*pSecretID),
+		config.WithParams(pSecretID),
 		//This is required in this case (a flag could be provided for an ulterior step and not be defined yet)
 		config.WithIgnoreFlagProvidedNotDefined(true),
 	)
@@ -277,7 +277,7 @@ func Example_whenMultiSteps() {
 	}
 
 	configManager, err = config.New(
-		config.WithParams(*pSecretValue),
+		config.WithParams(pSecretValue),
 	)
 	if err != nil {
 		panic(err)

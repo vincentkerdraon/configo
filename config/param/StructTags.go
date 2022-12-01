@@ -160,8 +160,8 @@ func NewParamFromStructTag(
 func ParamsFromStructTag(
 	v interface{},
 	prefix string,
-) ([]Param, error) {
-	params := []Param{}
+) ([]*Param, error) {
+	params := []*Param{}
 	err := IterateStructFields(v, func(name paramname.ParamName) error {
 		p, err := NewParamFromStructTag(v, name, nil)
 		if err != nil {
@@ -176,7 +176,7 @@ func ParamsFromStructTag(
 				p.Flag.Name = prefix + name.String()
 			}
 		}
-		params = append(params, *p)
+		params = append(params, p)
 		return nil
 	})
 	if err != nil {

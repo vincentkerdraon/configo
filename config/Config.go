@@ -126,13 +126,13 @@ func WithLock(l lock.Locker) configOptions {
 // WithParams to set the input parameters
 //
 // Can be called multiple times.
-func WithParams(params ...param.Param) configOptions {
+func WithParams(params ...*param.Param) configOptions {
 	return func(c *Manager) error {
 		for _, p := range params {
 			if _, f := c.Params[p.Name]; f {
 				return errors.ParamConfigError{ParamName: p.Name, Err: fmt.Errorf("2 params have the same name (id)")}
 			}
-			c.Params[p.Name] = p
+			c.Params[p.Name] = *p
 		}
 		return nil
 	}

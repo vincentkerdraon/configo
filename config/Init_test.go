@@ -61,7 +61,7 @@ func TestConfig_initParams(t *testing.T) {
 		"P1",
 		func(s string) error { return nil },
 	)
-	c1, _ := New(WithParams(*p1))
+	c1, _ := New(WithParams(p1))
 	_ = c1
 	p211, _ := param.New(
 		"P211",
@@ -80,13 +80,13 @@ func TestConfig_initParams(t *testing.T) {
 		"P2",
 		func(s string) error { return nil },
 	)
-	c211, _ := New(WithParams(*p211))
-	c21, _ := New(WithParams(*p21, *p22), WithSubCommand("sub211", c211))
-	c2, _ := New(WithParams(*p2), WithSubCommand("sub21", c21))
+	c211, _ := New(WithParams(p211))
+	c21, _ := New(WithParams(p21, p22), WithSubCommand("sub211", c211))
+	c2, _ := New(WithParams(p2), WithSubCommand("sub21", c21))
 	_ = c2
 
-	c31, _ := New(WithParams(*p21, *p22))
-	c3, _ := New(WithParams(*p2), WithSubCommand("sub31", c31))
+	c31, _ := New(WithParams(p21, p22))
+	c3, _ := New(WithParams(p2), WithSubCommand("sub31", c31))
 	_ = c3
 
 	type args struct {

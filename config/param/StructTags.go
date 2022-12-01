@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/vincentkerdraon/configo/config/errors"
 	"github.com/vincentkerdraon/configo/config/param/paramname"
@@ -39,6 +40,16 @@ func literalStore(s string, v reflect.Value) error {
 		}
 
 		//TODO it would be great if we could detect non-pointer struct fulfilling the interface. I am giving up for now.
+	}
+
+	switch v.Type().String() {
+	case "time.Duration":
+		d, err := time.ParseDuration(s)
+		if err != nil {
+			return &json.UnmarshalTypeError{Value: fmt.Sprintf("duration:%q", s), Type: v.Type()}
+		}
+		v.SetInt(d.Nanoseconds())
+		return nil
 	}
 
 	switch v.Kind() {

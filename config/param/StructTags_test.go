@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/vincentkerdraon/configo/config/param/paramname"
 )
@@ -86,13 +87,14 @@ func (i *interfaceWithSetter) Set(s string) error {
 func TestNewParamFromStructTag_parse(t *testing.T) {
 	type SuperString string
 	type struct1 struct {
-		KeySS      SuperString
-		KeyInt     int
-		KeyUint8   uint8
-		KeyFloat32 float32
-		KeyBool    bool
-		ISetter    interfaceWithSetter
-		ISetterP   *interfaceWithSetter
+		KeySS       SuperString
+		KeyInt      int
+		KeyUint8    uint8
+		KeyFloat32  float32
+		KeyBool     bool
+		KeyDuration time.Duration
+		ISetter     interfaceWithSetter
+		ISetterP    *interfaceWithSetter
 	}
 
 	myStruct1 := &struct1{
@@ -111,119 +113,142 @@ func TestNewParamFromStructTag_parse(t *testing.T) {
 		parse func(s string) error
 	}
 	tests := []struct {
-		name    string
-		args    args
-		val     string
-		wantErr bool
-		check   func(t *testing.T, i *struct1)
+		name         string
+		args         args
+		val          string
+		wantErrNew   bool
+		wantErrParse bool
+		check        func(t *testing.T, i *struct1)
 	}{
+		// {
+		// 	name: "custom parse provided",
+		// 	args: args{
+		// 		i:     myStruct1,
+		// 		name:  "KeySS",
+		// 		parse: func(s string) error { myStruct1.KeySS = SuperString(fmt.Sprintf("_%s_", s)); return nil },
+		// 	},
+		// 	val: "customParse",
+		// 	check: func(t *testing.T, i *struct1) {
+		// 		if i.KeySS != "_customParse_" {
+		// 			t.Errorf("got =%s\n", i.KeySS)
+		// 		}
+		// 	},
+		// },
+		// {
+		// 	name: "parse auto: custom type string",
+		// 	args: args{
+		// 		i:    myStruct1,
+		// 		name: "KeySS",
+		// 	},
+		// 	val: "valueS",
+		// 	check: func(t *testing.T, i *struct1) {
+		// 		if i.KeySS != "valueS" {
+		// 			t.Errorf("got =%s\n", i.KeySS)
+		// 		}
+		// 	},
+		// },
+		// {
+		// 	name: "parse auto: int",
+		// 	args: args{
+		// 		i:    myStruct1,
+		// 		name: "KeyInt",
+		// 	},
+		// 	val: "12",
+		// 	check: func(t *testing.T, i *struct1) {
+		// 		if i.KeyInt != 12 {
+		// 			t.Errorf("got =%d\n", i.KeyInt)
+		// 		}
+		// 	},
+		// },
+		// {
+		// 	name: "parse auto: uint8",
+		// 	args: args{
+		// 		i:    myStruct1,
+		// 		name: "KeyUint8",
+		// 	},
+		// 	val: "12",
+		// 	check: func(t *testing.T, i *struct1) {
+		// 		if i.KeyUint8 != 12 {
+		// 			t.Errorf("got =%d\n", i.KeyUint8)
+		// 		}
+		// 	},
+		// },
+		// {
+		// 	name: "parse auto: float32",
+		// 	args: args{
+		// 		i:    myStruct1,
+		// 		name: "KeyFloat32",
+		// 	},
+		// 	val: "12.12",
+		// 	check: func(t *testing.T, i *struct1) {
+		// 		if i.KeyFloat32 != 12.12 {
+		// 			t.Errorf("got =%f\n", i.KeyFloat32)
+		// 		}
+		// 	},
+		// },
+		// {
+		// 	name: "parse auto: bool",
+		// 	args: args{
+		// 		i:    myStruct1,
+		// 		name: "KeyBool",
+		// 	},
+		// 	val: "true",
+		// 	check: func(t *testing.T, i *struct1) {
+		// 		if i.KeyBool != true {
+		// 			t.Errorf("got =%t\n", i.KeyBool)
+		// 		}
+		// 	},
+		// },
+		// {
+		// 	name: "parse auto: duration",
+		// 	args: args{
+		// 		i:    myStruct1,
+		// 		name: "KeyDuration",
+		// 	},
+		// 	val: "72h",
+		// 	check: func(t *testing.T, i *struct1) {
+		// 		if i.KeyDuration != 72*time.Hour {
+		// 			t.Errorf("got =%s\n", i.KeyDuration)
+		// 		}
+		// 	},
+		// },
+		// {
+		// 	name: "keep initial value if not overridded",
+		// 	args: args{
+		// 		i:    &struct1{KeySS: "initial", KeyInt: 12},
+		// 		name: "KeySS",
+		// 	},
+		// 	val: "",
+		// 	check: func(t *testing.T, i *struct1) {
+		// 		if i.KeySS != "initial" {
+		// 			t.Errorf("got =%s\n", i.KeySS)
+		// 		}
+		// 	},
+		// },
+		// {
+		// 	name: "interfaceWithSetterP",
+		// 	args: args{
+		// 		name: "ISetterP",
+		// 		i:    myStruct1,
+		// 	},
+		// 	val: "value",
+		// 	check: func(t *testing.T, i *struct1) {
+		// 		if i.ISetterP.unchanged != "unchanged" {
+		// 			t.Errorf("lost sister value in struct\n")
+		// 		}
+		// 		if i.ISetterP.val != "value" {
+		// 			t.Errorf("got =%s\n", i.ISetter.val)
+		// 		}
+		// 	},
+		// },
 		{
-			name: "custom parse provided",
-			args: args{
-				i:     myStruct1,
-				name:  "KeySS",
-				parse: func(s string) error { myStruct1.KeySS = SuperString(fmt.Sprintf("_%s_", s)); return nil },
-			},
-			val: "customParse",
-			check: func(t *testing.T, i *struct1) {
-				if i.KeySS != "_customParse_" {
-					t.Errorf("got =%s\n", i.KeySS)
-				}
-			},
-		},
-		{
-			name: "parse auto: custom type string",
-			args: args{
-				i:    myStruct1,
-				name: "KeySS",
-			},
-			val: "valueS",
-			check: func(t *testing.T, i *struct1) {
-				if i.KeySS != "valueS" {
-					t.Errorf("got =%s\n", i.KeySS)
-				}
-			},
-		},
-		{
-			name: "parse auto: int",
-			args: args{
-				i:    myStruct1,
-				name: "KeyInt",
-			},
-			val: "12",
-			check: func(t *testing.T, i *struct1) {
-				if i.KeyInt != 12 {
-					t.Errorf("got =%d\n", i.KeyInt)
-				}
-			},
-		},
-		{
-			name: "parse auto: uint8",
-			args: args{
-				i:    myStruct1,
-				name: "KeyUint8",
-			},
-			val: "12",
-			check: func(t *testing.T, i *struct1) {
-				if i.KeyUint8 != 12 {
-					t.Errorf("got =%d\n", i.KeyUint8)
-				}
-			},
-		},
-		{
-			name: "parse auto: float32",
-			args: args{
-				i:    myStruct1,
-				name: "KeyFloat32",
-			},
-			val: "12.12",
-			check: func(t *testing.T, i *struct1) {
-				if i.KeyFloat32 != 12.12 {
-					t.Errorf("got =%f\n", i.KeyFloat32)
-				}
-			},
-		},
-		{
-			name: "parse auto: bool",
-			args: args{
-				i:    myStruct1,
-				name: "KeyBool",
-			},
-			val: "true",
-			check: func(t *testing.T, i *struct1) {
-				if i.KeyBool != true {
-					t.Errorf("got =%t\n", i.KeyBool)
-				}
-			},
-		},
-		{
-			name: "keep initial value if not overridded",
-			args: args{
-				i:    &struct1{KeySS: "initial", KeyInt: 12},
-				name: "KeySS",
-			},
-			val: "",
-			check: func(t *testing.T, i *struct1) {
-				if i.KeySS != "initial" {
-					t.Errorf("got =%s\n", i.KeySS)
-				}
-			},
-		},
-		{
-			name: "interfaceWithSetterP",
+			name: "interfaceWithSetterP when error",
 			args: args{
 				name: "ISetterP",
 				i:    myStruct1,
 			},
-			val: "value",
-			check: func(t *testing.T, i *struct1) {
-				if i.ISetterP.unchanged != "unchanged" {
-					t.Errorf("lost sister value in struct\n")
-				}
-				if i.ISetterP.val != "value" {
-					t.Errorf("got =%s\n", i.ISetter.val)
-				}
-			},
+			val:          "err",
+			wantErrParse: true,
 		},
 		// -- Won't work.
 		// {
@@ -246,14 +271,18 @@ func TestNewParamFromStructTag_parse(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			p, err := NewParamFromStructTag(tt.args.i, tt.args.name, tt.args.parse)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("NewParamFromStructTag() error = %v, wantErr %v", err, tt.wantErr)
+			if (err != nil) != tt.wantErrNew {
+				t.Errorf("NewParamFromStructTag() error = %v, wantErr %v", err, tt.wantErrNew)
 				return
 			}
-			if err := p.Parse(tt.val); err != nil {
-				t.Errorf("Parse() error = %v", err)
+			err = p.Parse(tt.val)
+			if (err != nil) != tt.wantErrParse {
+				t.Errorf("Parse() error = %v, wantErr %v", err, tt.wantErrParse)
+				return
 			}
-			tt.check(t, tt.args.i)
+			if tt.check != nil {
+				tt.check(t, tt.args.i)
+			}
 		})
 	}
 }

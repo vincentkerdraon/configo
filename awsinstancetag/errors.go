@@ -12,6 +12,8 @@ func (e UnreachableInstanceIdentityDocumentError) Error() string {
 
 func (e UnreachableInstanceIdentityDocumentError) Unwrap() error { return e.Err }
 
+//ForbiddenInstanceTagReadingError means permissions are needed to access instance meta.
+
 // see https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-options.html
 type ForbiddenInstanceTagReadingError struct {
 	Err error

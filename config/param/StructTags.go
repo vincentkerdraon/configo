@@ -37,6 +37,8 @@ func literalStore(s string, v reflect.Value) error {
 		if setter, ok := v.Interface().(setter); ok {
 			return setter.Set(s)
 		}
+
+		//TODO it would be great if we could detect non-pointer struct fulfilling the interface. I am giving up for now.
 	}
 
 	switch v.Kind() {

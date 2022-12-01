@@ -91,11 +91,15 @@ func TestNewParamFromStructTag_parse(t *testing.T) {
 		KeyUint8   uint8
 		KeyFloat32 float32
 		KeyBool    bool
-		ISetter    *interfaceWithSetter
+		ISetter    interfaceWithSetter
+		ISetterP   *interfaceWithSetter
 	}
 
 	myStruct1 := &struct1{
-		ISetter: &interfaceWithSetter{
+		ISetter: interfaceWithSetter{
+			unchanged: "unchanged",
+		},
+		ISetterP: &interfaceWithSetter{
 			unchanged: "unchanged",
 		},
 	}
@@ -206,21 +210,38 @@ func TestNewParamFromStructTag_parse(t *testing.T) {
 			},
 		},
 		{
-			name: "interfaceWithSetter",
+			name: "interfaceWithSetterP",
 			args: args{
-				name: "ISetter",
+				name: "ISetterP",
 				i:    myStruct1,
 			},
 			val: "value",
 			check: func(t *testing.T, i *struct1) {
-				if i.ISetter.unchanged != "unchanged" {
+				if i.ISetterP.unchanged != "unchanged" {
 					t.Errorf("lost sister value in struct\n")
 				}
-				if i.ISetter.val != "value" {
+				if i.ISetterP.val != "value" {
 					t.Errorf("got =%s\n", i.ISetter.val)
 				}
 			},
 		},
+		// -- Won't work.
+		// {
+		// 	name: "interfaceWithSetter",
+		// 	args: args{
+		// 		name: "ISetter",
+		// 		i:    myStruct1,
+		// 	},
+		// 	val: "value",
+		// 	check: func(t *testing.T, i *struct1) {
+		// 		if i.ISetter.unchanged != "unchanged" {
+		// 			t.Errorf("lost sister value in struct\n")
+		// 		}
+		// 		if i.ISetter.val != "value" {
+		// 			t.Errorf("got =%s\n", i.ISetter.val)
+		// 		}
+		// 	},
+		// },
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

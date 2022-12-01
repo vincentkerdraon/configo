@@ -114,6 +114,7 @@ func (a *AgeWithSetter) Set(s string) error {
 // Using the struct tags style (similar to the json package) to define field by field.
 // Close to Example_whenStructTagsStyle, but with more control on the field definition.
 func Example_whenStructTagsStyleByField() {
+	//Unfortunately, only works with `*struct`. Using directly `struct` will fail.
 	user := struct {
 		AgeWithSetter *AgeWithSetter `flag:"Age" default:"36"`
 	}{

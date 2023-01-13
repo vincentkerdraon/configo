@@ -109,7 +109,7 @@ func NewParamFromStructTag(
 	paramName := paramname.ParamName(name)
 	field, ok := reflect.TypeOf(v).Elem().FieldByName(name.String())
 	if !ok {
-		return nil, errors.ParamConfigError{ParamName: paramName, Err: fmt.Errorf("fail find struct field")}
+		return nil, errors.ParamConfigError{ParamName: paramName, Err: fmt.Errorf("fail find struct field:%q", name)}
 	}
 
 	if parse == nil && field.IsExported() {

@@ -46,6 +46,9 @@ func WithEnvVar(opts ...envVarOptions) paramOption {
 			Use: true,
 		}
 		for _, opt := range opts {
+			if opt == nil {
+				continue
+			}
 			if err := opt(&v); err != nil {
 				return err
 			}

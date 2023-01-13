@@ -20,6 +20,9 @@ const subCommandLevel0 subcommand.SubCommand = ""
 func (c *Manager) Init(ctx context.Context, opts ...configInitOptions) error {
 	ci := Init{InputArgs: os.Args[1:]}
 	for _, opt := range opts {
+		if opt == nil {
+			continue
+		}
 		if err := opt(&ci); err != nil {
 			return err
 		}

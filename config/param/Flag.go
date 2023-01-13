@@ -46,6 +46,9 @@ func WithFlag(opts ...flagOptions) paramOption {
 			Use: true,
 		}
 		for _, opt := range opts {
+			if opt == nil {
+				continue
+			}
 			if err := opt(&f); err != nil {
 				return err
 			}

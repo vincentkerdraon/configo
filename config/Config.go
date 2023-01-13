@@ -50,6 +50,9 @@ func New(opts ...configOptions) (*Manager, error) {
 		SubCommands: make(map[subcommand.SubCommand]*Manager),
 	}
 	for _, opt := range opts {
+		if opt == nil {
+			continue
+		}
 		if err := opt(&c); err != nil {
 			return nil, c.usageWhenConfigError(err)
 		}

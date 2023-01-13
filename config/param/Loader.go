@@ -35,6 +35,9 @@ func WithLoader(getter GetterFunc, opts ...loaderOptions) paramOption {
 			Getter: getter,
 		}
 		for _, opt := range opts {
+			if opt == nil {
+				continue
+			}
 			if err := opt(&s); err != nil {
 				return err
 			}

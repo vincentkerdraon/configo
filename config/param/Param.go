@@ -57,6 +57,9 @@ func New(
 		},
 	}
 	for _, opt := range opts {
+		if opt == nil {
+			continue
+		}
 		if err := opt(p); err != nil {
 			return nil, errors.ParamConfigError{ParamName: name, Err: err}
 		}

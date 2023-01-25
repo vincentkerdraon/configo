@@ -29,7 +29,8 @@ func (c *Manager) Init(ctx context.Context, opts ...configInitOptions) error {
 	}
 
 	//Check and run subCommands. With level0=SubCommand(subCommandLevel0)
-	subCommands, args := c.findSubCommand(ci.InputArgs)
+	//In some cases, we want to just get the args and ignore completely the commands
+	subCommands, args := c.findSubCommand(ci.InputArgs, c.IgnoreCommands)
 	paramsImpl, initFlags, finalValues, cb, err := c.initParams(ctx, []subcommand.SubCommand{subCommandLevel0}, subCommands, c)
 	if err != nil {
 		return c.usageWhenConfigError(err)
@@ -176,22 +177,14 @@ func (c *Manager) startSync(
 	return nil
 }
 
-// ForceLoad immediately syncs all the params where Load() is defined
-// func (c *Manager) ForceLoad(ctx context.Context) error {
-// 	for _, p := range c.Params {
-// 		pi := paramImpl{Param: p}
-// 		if err := pi.load(ctx, c.lock); err != nil {
-// 			return err
-// 		}
-// 	}
-// 	return nil
-// }
-
-func (c *Manager) findSubCommand(args []string) (_ []subcommand.SubCommand, argsWithoutCommand []string) {
+func (c *Manager) findSubCommand(args []string, ignoreCommands bool) (_ []subcommand.SubCommand, argsWithoutCommand []string) {
 	res := []subcommand.SubCommand{}
 	hasSubCommand := false
 	for i := 0; i < len(args); i++ {
 		if !strings.HasPrefix(args[i], "-") {
+			if ignoreCommands {
+				continue
+			}
 			hasSubCommand = true
 			res = append(res, subcommand.SubCommand(args[i]))
 		} else {

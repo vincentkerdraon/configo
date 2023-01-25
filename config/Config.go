@@ -20,6 +20,11 @@ type (
 		// default:false
 		IgnoreFlagProvidedNotDefined bool
 
+		// WithIgnoreCommands when need to ignore the commands.
+		//
+		// default:false
+		IgnoreCommands bool
+
 		Description string
 
 		//LoadErrorHandler is called when an error happens using Loader
@@ -99,6 +104,16 @@ func WithDescription(d string) configOptions {
 func WithIgnoreFlagProvidedNotDefined(t bool) configOptions {
 	return func(c *Manager) error {
 		c.IgnoreFlagProvidedNotDefined = t
+		return nil
+	}
+}
+
+// WithIgnoreCommands when need to ignore the commands.
+//
+// default:false
+func WithIgnoreCommands(t bool) configOptions {
+	return func(c *Manager) error {
+		c.IgnoreCommands = t
 		return nil
 	}
 }

@@ -14,6 +14,7 @@ func TestConfig_findSubCommand(t *testing.T) {
 	tests := []struct {
 		name                   string
 		args                   []string
+		ignoreCommands         bool
 		wantSubCommands        []subcommand.SubCommand
 		wantArgsWithoutCommand []string
 	}{
@@ -41,11 +42,18 @@ func TestConfig_findSubCommand(t *testing.T) {
 			wantSubCommands:        []subcommand.SubCommand{"sc1", "sc2"},
 			wantArgsWithoutCommand: []string{},
 		},
+		{
+			name:                   "ignore sub cmd",
+			args:                   []string{"sc1", "sc2", "-p1", "-p2"},
+			ignoreCommands:         true,
+			wantSubCommands:        []subcommand.SubCommand{},
+			wantArgsWithoutCommand: []string{"-p1", "-p2"},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := &Manager{}
-			gotSubCommands, gotArgsWithoutCommand := c.findSubCommand(tt.args)
+			gotSubCommands, gotArgsWithoutCommand := c.findSubCommand(tt.args, tt.ignoreCommands)
 			if fmt.Sprintf("%+v", gotSubCommands) != fmt.Sprintf("%+v", tt.wantSubCommands) {
 				t.Errorf("Config.findSubCommand() SubCommands\ngot =%+v\nwant=%+v", gotSubCommands, tt.wantSubCommands)
 			}
@@ -99,21 +107,21 @@ func TestConfig_initParams(t *testing.T) {
 		wantPI  []paramname.ParamName
 		wantErr bool
 	}{
-		// {
-		// 	name:   "no sub cmd",
-		// 	args:   args{subCmd: []subcommand.SubCommand{}, subCmdConfig: c1},
-		// 	wantPI: []paramname.ParamName{"P1"},
-		// },
+		{
+			name:   "no sub cmd",
+			args:   args{subCmd: []subcommand.SubCommand{}, subCmdConfig: c1},
+			wantPI: []paramname.ParamName{"P1"},
+		},
 		{
 			name:   "with sub cmd",
 			args:   args{subCmd: []subcommand.SubCommand{"sub21", "sub211"}, subCmdConfig: c2},
 			wantPI: []paramname.ParamName{"P211", "P21", "P2"}, //No P22
 		},
-		// {
-		// 	name:   "with sub cmd and local param",
-		// 	args:   args{subCmd: []subcommand.SubCommand{"sub31"}, subCmdConfig: c3},
-		// 	wantPI: []paramname.ParamName{"P22", "P21", "P2"},
-		// },
+		{
+			name:   "with sub cmd and local param",
+			args:   args{subCmd: []subcommand.SubCommand{"sub31"}, subCmdConfig: c3},
+			wantPI: []paramname.ParamName{"P22", "P21", "P2"},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

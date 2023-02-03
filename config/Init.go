@@ -85,7 +85,9 @@ func (c *Manager) Init(ctx context.Context, opts ...configInitOptions) error {
 	}
 
 	if cb != nil {
-		cb()
+		if err := cb(); err != nil {
+			return c.usageWhenConfigError(fmt.Errorf("fail command callback, %q", err))
+		}
 	}
 	return nil
 }
@@ -99,7 +101,7 @@ func (c *Manager) initParams(
 	_ map[paramname.ParamName]*paramImpl,
 	initFlags []func(*flag.FlagSet),
 	finalValues []func() (_ error),
-	callback func(),
+	callback func() error,
 	_ error,
 ) {
 	paramsImpl := map[paramname.ParamName]*paramImpl{}

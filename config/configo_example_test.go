@@ -169,8 +169,9 @@ func Example_whenSubCommand() {
 	cUserAndAge, err := config.New(
 		config.WithParamsFromStructTag(&userAndAge, ""),
 		config.WithDescription("getting User.Name + City"),
-		config.WithCallback(func() {
+		config.WithCallback(func() error {
 			//Triggers when this config (for this SubCommand) has been parsed.
+			return nil
 		}),
 	)
 	handleErr(err)
@@ -378,8 +379,9 @@ func Example_whenMultipleSubCommand() {
 	cUserAndAgeAndCity, err := config.New(
 		config.WithParamsFromStructTag(&userAndAgeAndCity, ""),
 		config.WithSubCommand("job", cUserAndAgeAndCityAndJob),
-		config.WithCallback(func() {
+		config.WithCallback(func() error {
 			//Triggers when this config (for this SubCommand) has been parsed.
+			return nil
 		}),
 	)
 	handleErr(err)
@@ -389,7 +391,7 @@ func Example_whenMultipleSubCommand() {
 		config.WithSubCommand("city", cUserAndAgeAndCity),
 		//don't error out if a City|Job flag is provided and this config only declares the flag Name+Age.
 		config.WithIgnoreFlagProvidedNotDefined(true),
-		config.WithCallback(func() {
+		config.WithCallback(func() error {
 			//Triggers when this config (for this SubCommand) has been parsed.
 			//Example blocking this sub command alone.
 			panic(`fail use subcommand "age" alone. Either use no subcommand or use "age city" or use "age city job"`)
@@ -402,8 +404,9 @@ func Example_whenMultipleSubCommand() {
 		config.WithSubCommand("age", cUserAndAge),
 		//don't error out if a Age|City|Job flag is provided and this config only declares the flag Name+Age.
 		config.WithIgnoreFlagProvidedNotDefined(true),
-		config.WithCallback(func() {
+		config.WithCallback(func() error {
 			//Triggers when this config (for this SubCommand) has been parsed.
+			return nil
 		}),
 	)
 	handleErr(err)

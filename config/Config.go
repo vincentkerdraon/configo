@@ -32,7 +32,7 @@ type (
 
 		SubCommands map[subcommand.SubCommand]*Manager
 
-		Callback func()
+		Callback func() error
 
 		//lock prevents race condition, mostly when using sync()
 		lock lock.Locker
@@ -169,7 +169,7 @@ func WithLoadErrorHandler(f func(_ paramname.ParamName, consecutiveErrNb int, _ 
 // WithCallback to trigger this function when the parsing is done.
 //
 // Handy for sub commands.
-func WithCallback(f func()) configOptions {
+func WithCallback(f func() error) configOptions {
 	return func(c *Manager) error {
 		c.Callback = f
 		return nil

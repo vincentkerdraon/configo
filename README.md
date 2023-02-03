@@ -22,6 +22,5 @@ To do quite the same purpose, see also:
 - add a logger
 - improve Competitors list
 - awssecretmanager lambda and doc
-- WithCallback should be `func() error`
-- TODO: Re-implement fs.Parse(). IgnoreFlagProvidedNotDefined does not work. I will fail silently and not read the other flags.
+- TODO: Re-implement fs.Parse(). IgnoreFlagProvidedNotDefined does not work. I will fail silently and not read the other flags. <- is that true?
 - FIXME: mandatory should be checked on the final value. Current version ignores the initial value in the struct

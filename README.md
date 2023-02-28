@@ -18,7 +18,7 @@ To do quite the same purpose, see also:
 - Auto completion in bash
 - create param.NewBool calling param.New but with the parse func `func(b bool) error` + other common types
 - reader JSON with sub keys and arrays
-- awssecretmanager BUG when same secret name used. (for example using different regions or accounts)
+- awssecretmanager does not support when same secret name used. (for example using different regions or accounts)
 - add a logger
 - improve Competitors list
 - awssecretmanager lambda and doc

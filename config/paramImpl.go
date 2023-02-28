@@ -69,7 +69,7 @@ func (p *paramImpl) init(ctx context.Context, lock lock.Locker, subCommands []su
 
 		//check enum
 		if err := p.checkEnum(val); err != nil {
-			return err
+			return errors.ParamConfigError{ParamName: p.Name, SubCommands: subCommands, Err: err}
 		}
 
 		//Check if flag or envvar set. In this case, don't start sync.

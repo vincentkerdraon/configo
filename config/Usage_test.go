@@ -195,6 +195,22 @@ func TestManagerUsage(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	s6p1, err := param.New("p1", func(s string) error { return nil }, param.WithEnumValues("v1", "v2"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	s6, err := New(WithParams(s6p1))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_ = s1
+	_ = s2
+	_ = s3
+	_ = s4
+	_ = s5
+	_ = s6
+
 	tests := []struct {
 		name        string
 		cm          *Manager
@@ -265,6 +281,17 @@ func TestManagerUsage(t *testing.T) {
 				SubCommands: []subcommand.SubCommand{subCommandLevel0, "unexpected"},
 				Err:         fmt.Errorf("undefined command. Declared: []"),
 			},
+		},
+		{
+			name: "enum fail",
+			cm:   s6,
+			args: []string{"-p1=v3"},
+			expectedErr: errors.ConfigWithUsageError{
+				Err: errors.ParamConfigError{
+					ParamName: "p1",
+					Err:       fmt.Errorf(`got value:"v3", expect one of:[v1 v2]`),
+				},
+				Usage: "\tParam: p1\n\t\tEnumValues: [v1 v2]\n\t\tCommand line flag: -p1\n\t\tEnvironment variable name: p1\n\t\tNo custom loader defined.\n"},
 		},
 	}
 	for _, tt := range tests {

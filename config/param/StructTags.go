@@ -187,18 +187,9 @@ func ParamsFromStructTag(
 ) ([]*Param, error) {
 	params := []*Param{}
 	err := IterateStructFields(v, func(name paramname.ParamName) error {
-		p, err := NewParamFromStructTag(v, name, nil)
+		p, err := NewParamFromStructTag(v, name, nil, WithPrefix(prefix))
 		if err != nil {
 			return err
-		}
-		if prefix != "" {
-			p.Name = paramname.ParamName(prefix) + name
-			if p.EnvVar.Use {
-				p.EnvVar.Name = prefix + name.String()
-			}
-			if p.Flag.Use {
-				p.Flag.Name = prefix + name.String()
-			}
 		}
 		params = append(params, p)
 		return nil

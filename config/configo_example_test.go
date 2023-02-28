@@ -85,12 +85,12 @@ func Example_whenStructTagsStyle() {
 	}{}
 
 	//Read the tags on the struct field. And tries to match simple types in the automatic parse() function.
-	c, err := config.New(config.WithParamsFromStructTag(&user, "prefix"))
+	c, err := config.New(config.WithParamsFromStructTag(&user, "prefix."))
 	handleErr(err)
 	err = c.Init(
 		context.Background(),
 		//(For this example) Forcing what we receive in the command line. Default is os.Args[1:]
-		config.WithInputArgs([]string{"-prefixName=Vincent", "-prefixAge=35"}),
+		config.WithInputArgs([]string{"-prefix.Name=Vincent", "-prefix.Age=35"}),
 	)
 	handleErr(err)
 

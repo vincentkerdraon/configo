@@ -64,6 +64,17 @@ func New(
 			return nil, errors.ParamConfigError{ParamName: name, Err: err}
 		}
 	}
+
+	//Setting the namespace
+	if p.prefix != "" {
+		p.Name = paramname.ParamName(p.prefix) + p.Name
+		if p.EnvVar.Name != "" {
+			p.EnvVar.Name = p.prefix + p.EnvVar.Name
+		}
+		if p.Flag.Name != "" {
+			p.Flag.Name = p.prefix + p.Flag.Name
+		}
+	}
 	return p, nil
 }
 

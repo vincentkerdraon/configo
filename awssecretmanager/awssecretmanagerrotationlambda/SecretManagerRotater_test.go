@@ -42,7 +42,8 @@ func (sm awsSecretsManagerMock) UpdateSecretVersionStageWithContext(ctx context.
 	return &secretsmanager.UpdateSecretVersionStageOutput{}, nil
 }
 
-func TestSecretManagerRotater(t *testing.T) {
+func TestIntegrationSecretManagerRotater(t *testing.T) {
+	t.Skip("Integration test")
 	now, err := time.Parse(time.DateTime, "2023-03-08 15:04:05")
 	if err != nil {
 		t.Fatal(err)

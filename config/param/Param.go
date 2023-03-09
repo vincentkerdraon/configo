@@ -116,6 +116,7 @@ func WithExamples(s ...string) paramOption {
 }
 
 // WithDefault will be the value if nothing overrides it.
+// This also overrides the current struct value even if non empty.
 func WithDefault(s string) paramOption {
 	return func(p *Param) error {
 		p.Default = s

@@ -11,18 +11,13 @@ import (
 	"github.com/vincentkerdraon/configo/awssecretmanager/awssecretmanagerrotationlambda"
 )
 
-func ExampleSecretManagerRotater_simpler() {
+func Example_simple() {
 	//No argument in New(): using all the defaults
 	rotater := awssecretmanagerrotationlambda.New()
 	lambda.Start(rotater.HandleRequest)
 }
 
-func ExampleSecretManagerRotater_AllOptions() {
-	//Inject your own logger if you want to see the Debug and Trace level or simply for consistency
-	// https://github.com/avelino/awesome-go#logging
-	//(this is nil for the example)
-	var myOwnLogger awssecretmanagerrotationlambda.LeveledLogger
-
+func Example_allOptions() {
 	//Do you own logic to change the secret old value into the new value
 	//Useful if you are using a JSON document instead of only one value
 	prepareSecretNew := func(ctx context.Context, secretARN, secretOld string) (secretNew string, _ error) {
@@ -40,7 +35,6 @@ func ExampleSecretManagerRotater_AllOptions() {
 	}
 
 	rotater := awssecretmanagerrotationlambda.New(
-		awssecretmanagerrotationlambda.WithLogger(myOwnLogger),
 		awssecretmanagerrotationlambda.WithPrepareSecret(prepareSecretNew),
 		awssecretmanagerrotationlambda.WithSetSecret(setSecret),
 		awssecretmanagerrotationlambda.WithTestSecret(testSecret),
@@ -51,7 +45,7 @@ func ExampleSecretManagerRotater_AllOptions() {
 	lambda.Start(rotater.HandleRequest)
 }
 
-func ExampleSecretManagerRotater_WithComplexJSONValues() {
+func Example_withComplexJSONValues() {
 	//let's say you have a secret manager entry:
 	// - arn = SecretID1
 	// - content = {"key1":"val1","key2":"val2"}

@@ -16,4 +16,6 @@
 
 .vscode
 
-awsinstancetag/AWSInstanceTagDisplay/AWSInstanceTagDisplay
+/awsinstancetag/AWSInstanceTagDisplay/AWSInstanceTagDisplay
+/awssecretmanager/awssecretmanagerrotationlambda/internal/cmd/lambda/main.zip
+/awssecretmanager/awssecretmanagerrotationlambda/internal/cmd/lambda/main

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"strings"
-	"time"
 
 	"github.com/aws/aws-lambda-go/lambdacontext"
 	"github.com/aws/aws-sdk-go/aws"
@@ -27,8 +26,9 @@ type (
 	}
 
 	impl struct {
-		svc           AWSSecretsManager
-		logger        LeveledLogger
+		svc    AWSSecretsManager
+		logger *log.Logger
+
 		prepareSecret func(ctx context.Context, secretARN string, secretOld string) (secretNew string, _ error)
 
 		// setSecret should set the AWSPENDING secret in the service that the secret belongs to. For example, if the secret is a database
@@ -43,16 +43,15 @@ type (
 )
 
 func New(opts ...Option) *impl {
-	r := &impl{}
+	r := &impl{
+		logger: log.Default(),
+	}
 
 	for _, opt := range opts {
 		if opt == nil {
 			continue
 		}
 		opt(r)
-	}
-	if r.logger == nil {
-		r.logger = NewLeveledLoggerStandard(LogLevelInfo)
 	}
 	if r.svc == nil {
 		r.svc = SvcSecretManagerDefault()
@@ -68,13 +67,13 @@ func New(opts ...Option) *impl {
 	}
 	if r.setSecret == nil {
 		r.setSecret = func(ctx context.Context, secretARN, versionID string) error {
-			r.logger.Info("setSecret: no operation")
+			r.logger.Println("setSecret: no operation")
 			return nil
 		}
 	}
 	if r.testSecret == nil {
 		r.testSecret = func(ctx context.Context, secretARN, versionID string) error {
-			r.logger.Info("testSecret: no operation")
+			r.logger.Println("testSecret: no operation")
 			return nil
 		}
 	}
@@ -89,12 +88,13 @@ func New(opts ...Option) *impl {
 // Example:
 // [{Step:createSecret secretARN:arn:aws:secretsmanager:us-east-1:388185734353:secret:testVincent-SdHK8l VersionID:a22e23fc-6d02-45f0-845d-e0bad50838f0}]
 func (r impl) HandleRequest(ctx context.Context, e lambdatype.EventInput) error {
-	now := time.Now()
-	r.logger.Debug("new event: %+v", e)
-	defer r.logger.Trace("done in %s", time.Since(now))
-
-	lc, _ := lambdacontext.FromContext(ctx)
-	r.logger.Debug("lambda context:%+v", *lc)
+	// now := time.Now()
+	// defer r.logger.Printf("done in %s\n", time.Since(now))
+	lambdaCtx := ""
+	if lc, _ := lambdacontext.FromContext(ctx); lc != nil {
+		lambdaCtx = fmt.Sprintf("%+v", *lc)
+	}
+	r.logger.Printf("new event: %+v\nlambda context:%+v\n", e, lambdaCtx)
 
 	// Make sure
 	// - the secret exists
@@ -138,7 +138,7 @@ func (r impl) HandleRequest(ctx context.Context, e lambdatype.EventInput) error 
 		}
 	}
 	if foundCurrent {
-		r.logger.Info("Secret already set to VersionStage=%q for VersionID=%q, SecretARN=%q", versionstage.Current, e.VersionID, e.SecretARN)
+		r.logger.Printf("Secret already set to VersionStage=%q for VersionID=%q, SecretARN=%q\n", versionstage.Current, e.VersionID, e.SecretARN)
 		return nil
 	}
 	if !foundPending {
@@ -182,7 +182,7 @@ func (r impl) createSecret(ctx context.Context, secretARN string, versionID stri
 	})
 	if err == nil {
 		//already have a secret, nothing to do
-		r.logger.Info("createSecret: already has VersionStage=%q, nothing to do, SecretARN=%q", versionstage.Pending, secretARN)
+		r.logger.Printf("createSecret: already has VersionStage=%q, nothing to do, SecretARN=%q\n", versionstage.Pending, secretARN)
 		return nil
 	}
 	if !strings.Contains(err.Error(), "ResourceNotFoundException") {
@@ -204,7 +204,7 @@ func (r impl) createSecret(ctx context.Context, secretARN string, versionID stri
 	if err != nil {
 		return fmt.Errorf("fail PutSecretValue, VersionStages=%q, %w", versionstage.Pending, err)
 	}
-	r.logger.Info("createSecret: Successfully put secret for VersionID=%q, VersionStage=%q, SecretARN=%q", versionID, versionstage.Pending, secretARN)
+	r.logger.Printf("createSecret: Successfully put secret for VersionID=%q, VersionStage=%q, SecretARN=%q\n", versionID, versionstage.Pending, secretARN)
 	return nil
 }
 
@@ -218,7 +218,7 @@ F:
 			if s != nil && *s == versionstage.Current.String() {
 				if version == versionID {
 					// # The correct version is already marked as current, return
-					r.logger.Info("finishSecret: already has VersionStage=%q, nothing to do, VersionID=%q, SecretARN=%q", versionstage.Current, versionID, secretARN)
+					r.logger.Printf("finishSecret: already has VersionStage=%q, nothing to do, VersionID=%q, SecretARN=%q\n", versionstage.Current, versionID, secretARN)
 					return nil
 				}
 				versionCurrent = version
@@ -237,7 +237,7 @@ F:
 	if err != nil {
 		return err
 	}
-	r.logger.Info("finishSecret: Successfully set VersionStage=%q for VersionID=%q, SecretARN=%q", versionstage.Current, versionID, secretARN)
+	r.logger.Printf("finishSecret: Successfully set VersionStage=%q for VersionID=%q, SecretARN=%q\n", versionstage.Current, versionID, secretARN)
 
 	return nil
 }

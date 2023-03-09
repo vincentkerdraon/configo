@@ -29,7 +29,6 @@ func main() {
 
 	//Create and start the lambda listener
 	rotater := awssecretmanagerrotationlambda.New(
-		awssecretmanagerrotationlambda.WithLogger(awssecretmanagerrotationlambda.NewLeveledLoggerStandard(awssecretmanagerrotationlambda.LogLevelTrace)),
 		awssecretmanagerrotationlambda.WithPrepareSecret(prepareSecretNew),
 	)
 	lambda.Start(rotater.HandleRequest)

@@ -54,7 +54,6 @@ func TestSecretManagerRotater(t *testing.T) {
 	svc := awsSecretsManagerMock{}
 	prepareSecretNew := lambdaconf.PrepareNewSecretFormatted(now, lambdaConf)
 	smr := New(
-		WithLogger(NewLeveledLoggerStandard(LogLevelTrace)),
 		WithAWSSecretsManager(svc),
 		WithPrepareSecret(prepareSecretNew),
 	)

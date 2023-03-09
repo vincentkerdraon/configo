@@ -28,7 +28,7 @@ func TestPrepareNewSecretFormatted(t *testing.T) {
 		wantSecretNew string
 	}{
 		{
-			name: "ok with TimeAnd8AlphaNum",
+			name: "ok with AlphaNum",
 			args: args{
 				now: now,
 				lambdaConf: LambdaConf{

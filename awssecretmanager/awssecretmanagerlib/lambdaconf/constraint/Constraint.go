@@ -4,6 +4,7 @@ import (
 	"fmt"
 )
 
+// Constraint gives the implementation to use for the secret rotation
 type Constraint string
 
 const (

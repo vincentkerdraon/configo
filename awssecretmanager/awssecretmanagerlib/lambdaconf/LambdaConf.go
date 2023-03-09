@@ -10,6 +10,7 @@ import (
 )
 
 type (
+	//LambdaConf is set in the lambda env var configuration. This is designed for JSON secrets where we want to rotate some of the values.
 	LambdaConf struct {
 		//By secretARN
 		Secrets map[string]JSONSecretRotationConf
@@ -27,6 +28,9 @@ type (
 )
 
 func (c LambdaConf) Validate() error {
+	if len(c.Secrets) == 0 {
+		return fmt.Errorf("conf is empty")
+	}
 	for s, secrets := range c.Secrets {
 		if s == "" {
 			return fmt.Errorf("conf has empty SecretARN")
@@ -43,6 +47,9 @@ func (c LambdaConf) Validate() error {
 	return nil
 }
 
+// PrepareNewSecretFormatted returns the signature used in lambda to change a secret.
+//
+// Based on LambdaConf, it will check if this secret entry is registered and what to rotate
 func PrepareNewSecretFormatted(now time.Time, lambdaConf LambdaConf) func(ctx context.Context, secretARN string, secretOld string) (secretNew string, _ error) {
 	return func(ctx context.Context, secretARN string, secretOld string) (secretNew string, _ error) {
 		secretConf, f := lambdaConf.Secrets[secretARN]

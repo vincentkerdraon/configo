@@ -6,6 +6,7 @@ import (
 	"github.com/vincentkerdraon/configo/awssecretmanager/awssecretmanagerlib/steptype"
 )
 
+// EventInput is what we receive from the secret manager.
 type EventInput struct {
 	//Step is the rotation step
 	Step steptype.StepType
@@ -16,10 +17,7 @@ type EventInput struct {
 }
 
 func (e EventInput) Validate() error {
-	var step steptype.StepType
-
-	//ok a bit weird but Set(s string) error already exists and is convenient
-	if err := step.Set(e.Step.String()); err != nil {
+	if err := e.Step.Validate(); err != nil {
 		return err
 	}
 	if e.SecretARN == "" || e.VersionID == "" {

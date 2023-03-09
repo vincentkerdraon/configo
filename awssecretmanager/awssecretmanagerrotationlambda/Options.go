@@ -13,11 +13,7 @@ func WithAWSSecretsManager(svc AWSSecretsManager) func(*impl) {
 		r.svc = svc
 	}
 }
-func WithLogger(logger LeveledLogger) func(*impl) {
-	return func(r *impl) {
-		r.logger = logger
-	}
-}
+
 func WithPrepareSecret(prepareSecret func(ctx context.Context, secretARN string, secretOld string) (secretNew string, _ error)) func(*impl) {
 	return func(r *impl) {
 		r.prepareSecret = prepareSecret

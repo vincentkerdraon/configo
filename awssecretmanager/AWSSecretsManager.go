@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
+	"github.com/vincentkerdraon/configo/awssecretmanager/awssecretmanagerlib/versionstage"
 	"github.com/vincentkerdraon/configo/lock"
 	"github.com/vincentkerdraon/configo/secretrotation"
 )
@@ -166,8 +167,8 @@ func (sm *impl) loadSecretVersionStage(ctx context.Context, secretName string) (
 		SecretId: aws.String(secretName),
 	}
 
-	loadWithStage := func(stage string) (secretrotation.Secret, error) {
-		result, err := sm.svcSecretManager.GetSecretValueWithContext(ctx, input.SetVersionStage(stage))
+	loadWithStage := func(stage versionstage.VersionStage) (secretrotation.Secret, error) {
+		result, err := sm.svcSecretManager.GetSecretValueWithContext(ctx, input.SetVersionStage(stage.String()))
 		if err != nil {
 			return "", err
 		}
@@ -176,15 +177,15 @@ func (sm *impl) loadSecretVersionStage(ctx context.Context, secretName string) (
 
 	var res secretrotation.RotatingSecret
 	var err error
-	res.Previous, err = loadWithStage("AWSPREVIOUS")
+	res.Previous, err = loadWithStage(versionstage.Previous)
 	if err != nil {
 		return nil, err
 	}
-	res.Current, err = loadWithStage("AWSCURRENT")
+	res.Current, err = loadWithStage(versionstage.Current)
 	if err != nil {
 		return nil, err
 	}
-	res.Pending, err = loadWithStage("AWSPENDING")
+	res.Pending, err = loadWithStage(versionstage.Previous)
 	if err != nil {
 		return nil, err
 	}

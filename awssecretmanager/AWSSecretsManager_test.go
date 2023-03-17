@@ -7,17 +7,16 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
+	"github.com/vincentkerdraon/configo/awssecretmanager/awssecretmanagerlib/versionstage"
 	"github.com/vincentkerdraon/configo/secretrotation"
 )
 
 type awsSecretsManagerMock struct {
-	i   int
-	res map[int]string
+	res map[versionstage.VersionStage]string
 }
 
 func (m *awsSecretsManagerMock) GetSecretValueWithContext(ctx context.Context, input *secretsmanager.GetSecretValueInput, opts ...request.Option) (*secretsmanager.GetSecretValueOutput, error) {
-	s := m.res[m.i]
-	m.i++
+	s := m.res[versionstage.VersionStage(*input.VersionStage)]
 	return &secretsmanager.GetSecretValueOutput{
 		SecretString: &s,
 	}, nil
@@ -84,51 +83,6 @@ func Test_impl_LoadValueWhenPlainText(t *testing.T) {
 		})
 	}
 }
-
-// func Test_impl_LoadValueWhenJSON(t *testing.T) {
-// 	type args struct {
-// 		secretName string
-// 		secretKey  string
-// 	}
-// 	tests := []struct {
-// 		name             string
-// 		svcSecretManager AWSSecretsManager
-// 		args             args
-// 		want             secretrotation.Secret
-// 		wantErr          bool
-// 	}{
-// 		{
-// 			name:             "when ok, value + JSON",
-// 			svcSecretManager: awsSecretsManagerMock{res: `{"key":"secret"}`},
-// 			args:             args{secretName: "secretName", secretKey: "key"},
-// 			want:             "secret",
-// 		},
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			cache := cacheMock{m: make(map[interface{}]interface{})}
-// 			sm := New(tt.svcSecretManager, cache)
-// 			got, err := sm.LoadValueWhenJSON(context.Background(), tt.args.secretName, tt.args.secretKey)
-// 			if (err != nil) != tt.wantErr {
-// 				t.Errorf("impl.LoadValueWhenJSON() error = %v, wantErr %v", err, tt.wantErr)
-// 				return
-// 			}
-// 			if got != tt.want {
-// 				t.Errorf("impl.LoadValueWhenJSON() = %v, want %v", got, tt.want)
-// 			}
-
-// 			//second time to use the cache
-// 			got, err = sm.LoadValueWhenJSON(context.Background(), tt.args.secretName, tt.args.secretKey)
-// 			if (err != nil) != tt.wantErr {
-// 				t.Errorf("impl.LoadValueWhenJSON() error = %v, wantErr %v", err, tt.wantErr)
-// 				return
-// 			}
-// 			if got != tt.want {
-// 				t.Errorf("impl.LoadValueWhenJSON() = %v, want %v", got, tt.want)
-// 			}
-// 		})
-// 	}
-// }
 
 func Test_impl_LoadRotatingSecretWhenJSON(t *testing.T) {
 	type args struct {

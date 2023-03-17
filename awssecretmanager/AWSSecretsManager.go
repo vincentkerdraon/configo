@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/request"
@@ -181,13 +182,25 @@ func (sm *impl) loadSecretVersionStage(ctx context.Context, secretName string) (
 	if err != nil {
 		return nil, err
 	}
-	res.Current, err = loadWithStage(versionstage.Current)
+
+	//Maybe this secret is not rotated.
+	//In this case, we get a value for Current but an error for the other stages. For example:
+	//ResourceNotFoundException: Secrets Manager can't find the specified secret value for staging label: AWSPREVIOUS
+	//In this case, this lib is using the value of Current everywhere.
+
+	res.Pending, err = loadWithStage(versionstage.Pending)
 	if err != nil {
-		return nil, err
+		if !strings.Contains(err.Error(), "ResourceNotFoundException") {
+			return nil, err
+		}
+		res.Pending = res.Current
 	}
-	res.Pending, err = loadWithStage(versionstage.Previous)
+	res.Previous, err = loadWithStage(versionstage.Previous)
 	if err != nil {
-		return nil, err
+		if !strings.Contains(err.Error(), "ResourceNotFoundException") {
+			return nil, err
+		}
+		res.Previous = res.Current
 	}
 
 	return &res, nil

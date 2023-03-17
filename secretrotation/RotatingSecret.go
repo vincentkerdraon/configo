@@ -37,6 +37,11 @@ func (rs RotatingSecret) Validate() error {
 func (rs RotatingSecret) Serialize() string {
 	return fmt.Sprintf("%s,%s,%s", rs.Previous, rs.Current, rs.Pending)
 }
+
+func (rs *RotatingSecret) Set(s string) error {
+	return rs.Deserialize(s)
+}
+
 func (rs *RotatingSecret) Deserialize(s string) error {
 	secrets := strings.Split(s, ",")
 	rs.Previous = Secret(secrets[0])
@@ -49,7 +54,7 @@ func (rs *RotatingSecret) Deserialize(s string) error {
 }
 
 // Range iterates over the secrets
-func (rs *RotatingSecret) Range(f func(Secret) (continueRange bool)) {
+func (rs RotatingSecret) Range(f func(Secret) (continueRange bool)) {
 	for _, s := range []Secret{rs.Current, rs.Pending, rs.Previous} {
 		if !f(s) {
 			return
@@ -57,7 +62,7 @@ func (rs *RotatingSecret) Range(f func(Secret) (continueRange bool)) {
 	}
 }
 
-func (rs *RotatingSecret) RedactSecret(in string) string {
+func (rs RotatingSecret) RedactSecret(in string) string {
 	rs.Range(func(s Secret) (continueRange bool) {
 		in = s.RedactSecret(in)
 		return true

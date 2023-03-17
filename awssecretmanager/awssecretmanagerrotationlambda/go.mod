@@ -6,7 +6,7 @@ replace github.com/vincentkerdraon/configo/awssecretmanager/awssecretmanagerlib 
 
 require (
 	github.com/aws/aws-lambda-go v1.38.0
-	github.com/aws/aws-sdk-go v1.44.216
+	github.com/aws/aws-sdk-go v1.44.224
 	github.com/vincentkerdraon/configo/awssecretmanager/awssecretmanagerlib v0.0.0-00010101000000-000000000000
 )
 

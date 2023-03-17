@@ -117,7 +117,7 @@ func Test_impl_LoadRotatingSecretWhenJSON(t *testing.T) {
 				return
 			}
 			if !reflect.DeepEqual(*got, tt.want) {
-				t.Errorf("impl.LoadRotatingSecretWhenJSON()\ngot =%q\nwant=%q", got, tt.want)
+				t.Errorf("impl.LoadRotatingSecretWhenJSON()\ngot =%q\nwant=%q", *got, tt.want)
 			}
 			if fromCache {
 				t.Error()
@@ -130,7 +130,7 @@ func Test_impl_LoadRotatingSecretWhenJSON(t *testing.T) {
 				return
 			}
 			if !reflect.DeepEqual(*got, tt.want) {
-				t.Errorf("impl.LoadRotatingSecretWhenJSON()\ngot =%q\nwant=%q", got, tt.want)
+				t.Errorf("impl.LoadRotatingSecretWhenJSON()\ngot =%q\nwant=%q", *got, tt.want)
 			}
 			if !fromCache {
 				t.Error()

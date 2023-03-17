@@ -21,7 +21,4 @@ To do quite the same purpose, see also:
 - awssecretmanager does not support when same secret name used. (for example using different regions or accounts)
 - add a logger
 - improve Competitors list
-- awssecretmanager lambda and doc
-- TODO: Re-implement fs.Parse(). IgnoreFlagProvidedNotDefined does not work. I will fail silently and not read the other flags. <- is that true?
-- FIXME: mandatory should be checked on the final value. Current version ignores the initial value in the struct
 - add param `func WithPrefix(opts ...envVarOptions) paramOption {`

@@ -192,7 +192,7 @@ func (sm *impl) loadSecretVersionStage(ctx context.Context, secretName string) (
 
 	//Maybe this secret is not rotated.
 	//In this case, we get a value for Current but an error for the other stages. For example:
-	//ResourceNotFoundException: Secrets Manager can't find the specified secret value for staging label: AWSPREVIOUS
+	//ResourceNotFoundException: Secrets Manager can't find the specified secret value for staging label: AWSPENDING
 	//In this case, this lib is using the value of Current everywhere.
 
 	res.Pending, err = loadWithStage(versionstage.Pending)

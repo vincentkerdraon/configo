@@ -8,9 +8,9 @@ replace (
 )
 
 require (
-	github.com/aws/aws-sdk-go v1.44.224
-	github.com/vincentkerdraon/configo v0.3.4
-	github.com/vincentkerdraon/configo/awssecretmanager/awssecretmanagerlib v0.0.0-20230317234014-7a9c282bb368
+	github.com/aws/aws-sdk-go v1.44.227
+	github.com/vincentkerdraon/configo v0.3.6-0.20230322232810-3c85ac8ed431
+	github.com/vincentkerdraon/configo/awssecretmanager/awssecretmanagerlib v0.0.0-20230322232810-3c85ac8ed431
 )
 
 require github.com/jmespath/go-jmespath v0.4.0 // indirect

@@ -44,6 +44,9 @@ func (rs *RotatingSecret) Set(s string) error {
 
 func (rs *RotatingSecret) Deserialize(s string) error {
 	secrets := strings.Split(s, ",")
+	if len(secrets) != 3 {
+		return fmt.Errorf("not 3 parts RotatingSecret as string, nothing to Deserialize")
+	}
 	rs.Previous = Secret(secrets[0])
 	rs.Current = Secret(secrets[1])
 	rs.Pending = Secret(secrets[2])

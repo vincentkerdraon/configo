@@ -22,3 +22,4 @@ To do quite the same purpose, see also:
 - add a logger
 - improve Competitors list
 - add param `func WithPrefix(opts ...envVarOptions) paramOption {`
+- "No custom loader defined." is wrong.

@@ -13,6 +13,8 @@ The reason for the 3 secrets is we always want a valid secret, given:
 Assertions:
   - The refresh rate on the Providers and Consumers is faster than the secret rotation frequency in the secret holder.
   - We have 3 secrets: {PREVIOUS,CURRENT,PENDING}. This is AWS design and that seems robust.
+  - Deserializing a single value string (without coma) will return value=PREVIOUS=CURRENT=PENDING.
+  - Secrets should never contain coma (as this is the delimiter for serialization)
 
 See: https://docs.aws.amazon.com/secretsmanager/latest/userguide/getting-started.html
 

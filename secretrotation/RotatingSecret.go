@@ -42,10 +42,28 @@ func (rs *RotatingSecret) Set(s string) error {
 	return rs.Deserialize(s)
 }
 
+// Deserialize will populate the RotatingSecret object based on the string value
+//
+// If string empty => error.
+// If 1 part string => all 3 values of the secret will be the same.
+// If 3 part string, comma separated => set into RotatingSecret.
+// Else => error
 func (rs *RotatingSecret) Deserialize(s string) error {
+	if len(s) == 0 {
+		return fmt.Errorf("fail Deserialize empty string as RotatingSecret")
+	}
 	secrets := strings.Split(s, ",")
+	if len(secrets) == 1 {
+		rs.Previous = Secret(secrets[0])
+		rs.Current = Secret(secrets[0])
+		rs.Pending = Secret(secrets[0])
+		if err := rs.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}
 	if len(secrets) != 3 {
-		return fmt.Errorf("not 3 parts RotatingSecret as string, nothing to Deserialize")
+		return fmt.Errorf("not 3 parts RotatingSecret as string, fail Deserialize")
 	}
 	rs.Previous = Secret(secrets[0])
 	rs.Current = Secret(secrets[1])

@@ -22,4 +22,6 @@ To do quite the same purpose, see also:
 - add a logger
 - improve Competitors list
 - add param `func WithPrefix(opts ...envVarOptions) paramOption {`
-- "No custom loader defined." is wrong.
+- add a way to debug a specific param.
+- add flags for contrainst/validation: "must be > 0", "not value"?
+- BUG: when using WithIgnoreFlagProvidedNotDefined, ignoring an earlier flag also ignores later flags.

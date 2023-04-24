@@ -86,7 +86,7 @@ func (c *Manager) Init(ctx context.Context, opts ...configInitOptions) error {
 
 	if cb != nil {
 		if err := cb(); err != nil {
-			return c.usageWhenConfigError(fmt.Errorf("fail command callback, %q", err))
+			return c.usageWhenConfigError(fmt.Errorf("fail command callback, %s", err))
 		}
 	}
 	return nil

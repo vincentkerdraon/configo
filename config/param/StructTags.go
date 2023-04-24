@@ -211,7 +211,9 @@ func IterateStructFields(
 ) error {
 	typeOfV := reflect.TypeOf(v)
 	if typeOfV.Kind() != reflect.Ptr {
-		return fmt.Errorf("expect Ptr, got %s", typeOfV.Kind())
+		//panic instead of returning an error here,
+		//easier to find what the faulty struct.
+		panic(fmt.Errorf("expect Ptr, got %s", typeOfV.Kind()))
 	}
 
 	//Return nice error in case of double pointer

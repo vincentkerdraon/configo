@@ -17,11 +17,10 @@ To do quite the same purpose, see also:
 
 - Auto completion in bash
 - create param.NewBool calling param.New but with the parse func `func(b bool) error` + other common types
-- reader JSON with sub keys and arrays
 - awssecretmanager does not support when same secret name used. (for example using different regions or accounts)
-- add a logger
 - improve Competitors list
 - add param `func WithPrefix(opts ...envVarOptions) paramOption {`
 - add a way to debug a specific param.
 - add flags for contrainst/validation: "must be > 0", "not value"?
-- BUG: when using WithIgnoreFlagProvidedNotDefined, ignoring an earlier flag also ignores later flags.
+- how to show help and usage? command "help"?
+- replace golang.org/x/exp/slog in go 1.21

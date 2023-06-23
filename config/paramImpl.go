@@ -11,6 +11,7 @@ import (
 	"github.com/vincentkerdraon/configo/config/param"
 	"github.com/vincentkerdraon/configo/config/subcommand"
 	"github.com/vincentkerdraon/configo/lock"
+	"golang.org/x/exp/slog"
 )
 
 //Keeping this implementation non-exported to keep the public API clean
@@ -29,7 +30,7 @@ type paramImpl struct {
 	hasEnvVarOrFlag bool
 }
 
-func (p *paramImpl) init(ctx context.Context, lock lock.Locker, subCommands []subcommand.SubCommand) (initFlag func(*flag.FlagSet), setValue func() error, _ error) {
+func (p *paramImpl) init(ctx context.Context, logger *slog.Logger, lock lock.Locker, subCommands []subcommand.SubCommand) (initFlag func(*flag.FlagSet), setValue func() error, _ error) {
 	var hasEnvVarOrFlag bool
 	val := p.Default
 
@@ -39,12 +40,15 @@ func (p *paramImpl) init(ctx context.Context, lock lock.Locker, subCommands []su
 		if valEnvVar != "" {
 			hasEnvVarOrFlag = true
 			val = valEnvVar
+			logger.DebugCtx(ctx, "found env var", slog.String("Param", p.Name.String()), slog.String("Value", val))
+		} else {
+			logger.DebugCtx(ctx, "no env var found", slog.String("Param", p.Name.String()))
 		}
 	}
 	tmpFlagVal := val
 	if p.Flag.Use {
 		//using tmpFlagVal to detect if the value was set or not (even when same as previous step)
-		initFlag = p.loadFlag(&tmpFlagVal)
+		initFlag = p.loadFlag(logger, &tmpFlagVal)
 	}
 	setValue = func() error {
 		if tmpFlagVal != val {
@@ -52,14 +56,21 @@ func (p *paramImpl) init(ctx context.Context, lock lock.Locker, subCommands []su
 			val = tmpFlagVal
 		}
 
-		if !hasEnvVarOrFlag && p.Loader.Getter != nil {
-			valLoader, err := p.Loader.Getter(ctx)
-			if err != nil {
-				return errors.ParamConfigError{ParamName: p.Name, SubCommands: subCommands, Err: errors.ConfigLoaderFetchError{Err: err}}
+		if !hasEnvVarOrFlag {
+			if p.Loader.Getter != nil {
+				valLoader, err := p.Loader.Getter(ctx)
+				if err != nil {
+					return errors.ParamConfigError{ParamName: p.Name, SubCommands: subCommands, Err: errors.ConfigLoaderFetchError{Err: err}}
+				}
+				if valLoader != "" {
+					val = valLoader
+					logger.DebugCtx(ctx, "Loader returns value", slog.String("Param", p.Name.String()), slog.String("Value", val))
+				} else {
+					logger.DebugCtx(ctx, "Loader returns no value", slog.String("Param", p.Name.String()))
+				}
 			}
-			if valLoader != "" {
-				val = valLoader
-			}
+		} else {
+			logger.DebugCtx(ctx, "skipping Loader, found env var or flag", slog.String("Param", p.Name.String()), slog.String("Value", val))
 		}
 
 		//Check mandatory
@@ -160,7 +171,7 @@ func (p paramImpl) loadEnvVar() string {
 	return os.Getenv(nameEnvVar)
 }
 
-func (p paramImpl) loadFlag(val *string) func(*flag.FlagSet) {
+func (p paramImpl) loadFlag(logger *slog.Logger, val *string) func(*flag.FlagSet) {
 	var nameFlag string
 	if p.Flag.Name != "" {
 		nameFlag = p.Flag.Name
@@ -169,6 +180,7 @@ func (p paramImpl) loadFlag(val *string) func(*flag.FlagSet) {
 	}
 
 	return func(fs *flag.FlagSet) {
+		logger.Debug("Param:%s, checking flag named %q", p.Name, nameFlag)
 		fs.StringVar(val, nameFlag, *val, p.usage(0))
 	}
 }

@@ -13,4 +13,7 @@ require (
 	github.com/vincentkerdraon/configo/awssecretmanager/awssecretmanagerlib v0.0.0-20230322232810-3c85ac8ed431
 )
 
-require github.com/jmespath/go-jmespath v0.4.0 // indirect
+require (
+	github.com/jmespath/go-jmespath v0.4.0 // indirect
+	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
+)

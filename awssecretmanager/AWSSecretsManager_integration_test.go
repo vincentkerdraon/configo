@@ -22,7 +22,7 @@ func TestIntegration_LoadRotatingSecretWhenJSON(t *testing.T) {
 	}))
 	svcSecretManager := secretsmanager.New(sess)
 
-	sm := awssecretmanager.New(svcSecretManager, nil, "")
+	sm := awssecretmanager.New(svcSecretManager)
 
 	secretName := "prod/app"
 	keyJSON := "TokenChecker.Secret"

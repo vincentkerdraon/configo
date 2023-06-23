@@ -185,6 +185,7 @@ func Example_whenSubCommand() {
 		config.WithSubCommand("age", cUserAndAge),
 		config.WithSubCommand("city", cUserAndCity),
 		//don't error out if a City flag is provided and this config only declares the flag Name.
+		//Note: the order of flags is important. They will be processed in order and stop (without erroring) at the first unknown flag.
 		config.WithIgnoreFlagProvidedNotDefined(true),
 	)
 	handleErr(err)
@@ -293,6 +294,7 @@ func Example_whenMultiSteps() {
 	configManager, err := config.New(
 		config.WithParams(pSecretID),
 		//This is required in this case (a flag could be provided for an ulterior step and not be defined yet)
+		// Note: the order of flags is important. They will be processed in order and stop (without erroring) at the first unknown flag.
 		config.WithIgnoreFlagProvidedNotDefined(true),
 	)
 	if err != nil {
@@ -390,6 +392,7 @@ func Example_whenMultipleSubCommand() {
 		config.WithParamsFromStructTag(&userAndAge, ""),
 		config.WithSubCommand("city", cUserAndAgeAndCity),
 		//don't error out if a City|Job flag is provided and this config only declares the flag Name+Age.
+		// Note: the order of flags is important. They will be processed in order and stop (without erroring) at the first unknown flag.
 		config.WithIgnoreFlagProvidedNotDefined(true),
 		config.WithCallback(func() error {
 			//Triggers when this config (for this SubCommand) has been parsed.
@@ -403,6 +406,7 @@ func Example_whenMultipleSubCommand() {
 		config.WithParamsFromStructTag(&user, ""),
 		config.WithSubCommand("age", cUserAndAge),
 		//don't error out if a Age|City|Job flag is provided and this config only declares the flag Name+Age.
+		// Note: the order of flags is important. They will be processed in order and stop (without erroring) at the first unknown flag.
 		config.WithIgnoreFlagProvidedNotDefined(true),
 		config.WithCallback(func() error {
 			//Triggers when this config (for this SubCommand) has been parsed.

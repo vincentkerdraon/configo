@@ -22,7 +22,7 @@ type applicationConfiguration struct {
 
 func initConfigWhenLoadValueWhenPlainText(svcSecretManager awssecretmanager.AWSSecretsManager) func() *applicationConfiguration {
 	appConfig := applicationConfiguration{}
-	sm := awssecretmanager.New(svcSecretManager, nil, "")
+	sm := awssecretmanager.New(svcSecretManager)
 
 	//Simple read from the secret manager (plain text + not rotating)
 
@@ -71,7 +71,7 @@ func initConfigWhenLoadValueWhenPlainText(svcSecretManager awssecretmanager.AWSS
 
 func initConfigWhenLoadRotatingSecretWhenJSON(svcSecretManager awssecretmanager.AWSSecretsManager) func() *applicationConfiguration {
 	appConfig := applicationConfiguration{}
-	sm := awssecretmanager.New(svcSecretManager, nil, "")
+	sm := awssecretmanager.New(svcSecretManager)
 
 	// Read a rotating secret from the secret manager. (JSON)
 	// For this example: The name of the secret to use comes from the PreConfig.

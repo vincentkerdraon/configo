@@ -52,7 +52,7 @@ func TestConfig_findSubCommand(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := &Manager{}
+			c, _ := New()
 			gotSubCommands, gotArgsWithoutCommand := c.findSubCommand(tt.args, tt.ignoreCommands)
 			if fmt.Sprintf("%+v", gotSubCommands) != fmt.Sprintf("%+v", tt.wantSubCommands) {
 				t.Errorf("Config.findSubCommand() SubCommands\ngot =%+v\nwant=%+v", gotSubCommands, tt.wantSubCommands)
@@ -125,7 +125,7 @@ func TestConfig_initParams(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := &Manager{}
+			c, _ := New()
 			got, _, _, _, err := c.initParams(context.Background(), []subcommand.SubCommand{subCommandLevel0}, tt.args.subCmd, tt.args.subCmdConfig)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Config.initParams() error = %v, wantErr %v", err, tt.wantErr)

@@ -55,7 +55,7 @@ func Test_impl_LoadValueWhenPlainText(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cache := cacheMock{m: make(map[interface{}]interface{})}
-			sm := New(tt.svcSecretManager, cache, "")
+			sm := New(tt.svcSecretManager, WithCache(cache, ""))
 			got, fromCache, err := sm.LoadValueWhenPlainText(context.Background(), tt.args.secretName)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("impl.LoadValueWhenPlainText() error = %v, wantErr %v", err, tt.wantErr)
@@ -110,7 +110,7 @@ func Test_impl_LoadRotatingSecretWhenJSON(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cache := cacheMock{m: make(map[interface{}]interface{})}
-			sm := New(tt.svcSecretManager, cache, "")
+			sm := New(tt.svcSecretManager, WithCache(cache, ""))
 			got, fromCache, err := sm.LoadRotatingSecretWhenJSON(context.Background(), tt.args.secretName, tt.args.secretKey)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("impl.LoadRotatingSecretWhenJSON() error = %v, wantErr %v", err, tt.wantErr)
@@ -147,7 +147,7 @@ func Test_LoadRotatingSecretWhenJSON_scenario(t *testing.T) {
 		versionstage.Pending:  `{"key1":"pending1","key2":"pending2","key3":"pending2"}`,
 	}}
 
-	sm := New(svcSecretManager, cache, "")
+	sm := New(svcSecretManager, WithCache(cache, ""))
 
 	got, fromCache, err := sm.LoadRotatingSecretWhenJSON(context.Background(), "whatever", "key1")
 	if err != nil {

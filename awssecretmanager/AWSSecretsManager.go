@@ -85,7 +85,7 @@ func (sm *impl) LoadValueWhenJSON(ctx context.Context, secretName string, secret
 		sm.logger.WarnCtx(ctx, "LoadValueWhenJSON", slog.String("err", err.Error()), slog.String("secretName", secretName), slog.String("secretKey", secretKey), slog.Bool("fromCache", fromCache))
 		return nil, fromCache, fmt.Errorf("for secretName=%q, secretKey=%q, %w", secretName, secretKey, err)
 	}
-	sm.logger.DebugCtx(ctx, "LoadValueWhenJSON", slog.String("secretName", secretName), slog.String("secretKey", secretKey), slog.Bool("fromCache", fromCache), slog.String("res", res.String()))
+	sm.logger.DebugCtx(ctx, "LoadValueWhenJSON", slog.String("secretName", secretName), slog.String("secretKey", secretKey), slog.Bool("fromCache", fromCache), slog.Any("res", res))
 	return res, fromCache, nil
 }
 
@@ -98,7 +98,7 @@ func (sm *impl) LoadValueWhenPlainText(ctx context.Context, secretName string) (
 		sm.logger.WarnCtx(ctx, "LoadValueWhenPlainText", slog.String("err", err.Error()), slog.String("secretName", secretName), slog.Bool("fromCache", fromCache))
 		return nil, fromCache, fmt.Errorf("for secretName=%q, %w", secretName, err)
 	}
-	sm.logger.DebugCtx(ctx, "LoadValueWhenPlainText", slog.String("secretName", secretName), slog.Bool("fromCache", fromCache), slog.String("res", res.String()))
+	sm.logger.DebugCtx(ctx, "LoadValueWhenPlainText", slog.String("secretName", secretName), slog.Bool("fromCache", fromCache), slog.Any("res", res))
 	return res, fromCache, nil
 }
 
@@ -142,7 +142,7 @@ func (sm *impl) LoadRotatingSecretWhenJSON(ctx context.Context, secretName strin
 		sm.logger.WarnCtx(ctx, "LoadRotatingSecretWhenJSON", slog.String("err", err.Error()), slog.String("secretName", secretName), slog.String("secretKey", secretKey), slog.Bool("fromCache", fromCache))
 		return nil, fromCache, fmt.Errorf("for secretName=%q, secretKey=%q, %w", secretName, secretKey, err)
 	}
-	sm.logger.DebugCtx(ctx, "LoadRotatingSecretWhenJSON", slog.String("secretName", secretName), slog.String("secretKey", secretKey), slog.Bool("fromCache", fromCache), slog.String("res", res.Serialize()))
+	sm.logger.DebugCtx(ctx, "LoadRotatingSecretWhenJSON", slog.String("secretName", secretName), slog.String("secretKey", secretKey), slog.Bool("fromCache", fromCache), slog.Any("res", res))
 	return res, fromCache, nil
 }
 
@@ -158,7 +158,7 @@ func (sm *impl) LoadRotatingSecretWhenPlainText(ctx context.Context, secretName 
 		sm.logger.WarnCtx(ctx, "LoadRotatingSecretWhenPlainText", slog.String("err", err.Error()), slog.String("secretName", secretName), slog.Bool("fromCache", fromCache))
 		return nil, fromCache, fmt.Errorf("for secretName=%q, %w", secretName, err)
 	}
-	sm.logger.DebugCtx(ctx, "LoadRotatingSecretWhenPlainText", slog.String("secretName", secretName), slog.Bool("fromCache", fromCache), slog.String("res", res.Serialize()))
+	sm.logger.DebugCtx(ctx, "LoadRotatingSecretWhenPlainText", slog.String("secretName", secretName), slog.Bool("fromCache", fromCache), slog.Any("res", res))
 	return res, fromCache, nil
 }
 

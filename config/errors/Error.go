@@ -92,3 +92,12 @@ func (err ParamParseError) Unwrap() error { return err.Err }
 
 var ErrMandatoryValue = errors.New("mandatory value")
 var ErrLoaderFetch = errors.New("fail loader on fetch")
+
+type FlagUnknownError struct {
+	Err error
+}
+
+func (err FlagUnknownError) Error() string {
+	return fmt.Sprintf("FlagUnknownError: %s", err.Err)
+}
+func (err FlagUnknownError) Unwrap() error { return err.Err }

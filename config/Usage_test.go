@@ -204,12 +204,21 @@ func TestManagerUsage(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	s7p1, err := param.New("p1", func(s string) error { return nil })
+	if err != nil {
+		t.Fatal(err)
+	}
+	s7, err := New(WithParams(s7p1))
+	if err != nil {
+		t.Fatal(err)
+	}
 	_ = s1
 	_ = s2
 	_ = s3
 	_ = s4
 	_ = s5
 	_ = s6
+	_ = s7
 
 	tests := []struct {
 		name        string
@@ -292,6 +301,20 @@ func TestManagerUsage(t *testing.T) {
 					Err:       fmt.Errorf(`got value:"v3", expect one of:[v1 v2]`),
 				},
 				Usage: "\tParam: p1\n\t\tEnumValues: [v1 v2]\n\t\tCommand line flag: -p1\n\t\tEnvironment variable name: p1\n\t\tNo custom loader defined.\n"},
+		},
+		{
+			name: "unknown param",
+			cm:   s7,
+			args: []string{"-pUnknown=1"},
+			expectedErr: errors.ConfigWithUsageError{
+				Err: errors.ConfigError{
+					SubCommands: []subcommand.SubCommand{subCommandLevel0},
+					Err: errors.FlagUnknownError{
+						Err: fmt.Errorf("flag provided but not defined: -pUnknown"),
+					},
+				},
+				Usage: "\n\n\tParam: p1\n\t\tCommand line flag: -p1\n\t\tEnvironment variable name: p1\n\t\tNo custom loader defined.\n\n",
+			},
 		},
 	}
 	for _, tt := range tests {

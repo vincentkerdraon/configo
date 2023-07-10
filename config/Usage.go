@@ -53,6 +53,13 @@ func (c *Manager) usageWhenConfigError(err error) error {
 	if stderrors.As(err, &ce) {
 		cmd := c.getSubCommand(ce.SubCommands)
 		if cmd == nil {
+			flagUnknownError := errors.FlagUnknownError{}
+			if stderrors.As(err, &flagUnknownError) {
+				return errors.ConfigWithUsageError{
+					Err:   err,
+					Usage: c.Usage(0),
+				}
+			}
 			return err
 		}
 		return errors.ConfigWithUsageError{

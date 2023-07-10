@@ -47,7 +47,7 @@ func (c *Manager) Init(ctx context.Context, opts ...configInitOptions) error {
 	if err := fs.Parse(args); err != nil {
 		c.Logger.WarnCtx(ctx, "fail parse flags", slog.String("err", err.Error()), slog.Bool("IgnoreFlagProvidedNotDefined", c.IgnoreFlagProvidedNotDefined))
 		if !(c.IgnoreFlagProvidedNotDefined && strings.HasPrefix(err.Error(), errFlagProvidedNotDefined)) {
-			return c.usageWhenConfigError(errors.ConfigError{Err: err})
+			return c.usageWhenConfigError(errors.ConfigError{SubCommands: subCommands, Err: errors.FlagUnknownError{Err: err}})
 		}
 	}
 

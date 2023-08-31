@@ -17,6 +17,6 @@
 .vscode
 
 /awsinstancetag/AWSInstanceTagDisplay/AWSInstanceTagDisplay
-/awssecretmanager/awssecretmanagerrotationlambda/internal/cmd/lambda/main.zip
-/awssecretmanager/awssecretmanagerrotationlambda/internal/cmd/lambda/main
 /awssecretmanager/awssecretmanagerrotationlambda/internal/cmd/lambda/lambda
+/awssecretmanager/awssecretmanagerrotationlambda/internal/cmd/lambda/bootstrap
+/awssecretmanager/awssecretmanagerrotationlambda/internal/cmd/lambda/SecretManagerRotater.zip

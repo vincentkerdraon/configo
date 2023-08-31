@@ -10,11 +10,14 @@ And mostly based on:
 Steps to use:
   - create secret manager entry with initial values
   - deploy lambda https://docs.aws.amazon.com/lambda/latest/dg/golang-package.html
-  - => GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o main main.go
-  - => zip main.zip main
+  - => cd configo/awssecretmanager/awssecretmanagerrotationlambda/internal/cmd/lambda
+  - => GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -tags lambda.norpc -o bootstrap main.go
+  - => zip SecretManagerRotater.zip bootstrap
   - deploy lambda. Maybe with env var if you have a complex implementation.
   - => upload .zip file
-  - => HandlerInfo is the name of the binary file to use. `main` in this case
+  - => HandlerInfo is the name of the binary file to use. `bootstrap` in this case
+  - => runtime: "Custom runtime on Amazon Linux 2"
+  - => Architecture: arm64
   - => use minimum perf lambda, Memory 128MB
   - => set Permissions.Execution role
   - => set Permissions.Resource-based policy statements

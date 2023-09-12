@@ -55,3 +55,12 @@ func ExampleRotatingSecret_RedactSecret() {
 	// Output:
 	// redacted="my string including [redacted]"
 }
+
+func ExampleRotatingSecret_Allowed() {
+	rs := secretrotation.NewRotatingSecret("my_secretA", "my_secretB", "my_secretC")
+	// For example we receive a Shared secret in a http request, and we want to check it matches one of the known secrets
+	// This function will always take the same time, in order to make it harder to detect how close an attack is to the solution by looking at the processing time.
+	if !rs.Allowed("my_secretC") {
+		panic("expect ok")
+	}
+}

@@ -1,7 +1,6 @@
 package secretrotation
 
 import (
-	"crypto/subtle"
 	"sync"
 )
 
@@ -64,20 +63,7 @@ func (m *Manager) Allowed(in Secret) bool {
 		rs = m.rs
 	}()
 
-	var ok bool
-	inB := []byte(in)
-	rs.Range(func(s Secret) (continueRange bool) {
-		//using a constant time comparison.
-		//It will always take the same time when wrong, being closer to the solution or not.
-		if subtle.ConstantTimeCompare(inB, []byte(s)) == 1 {
-			//returning early when having the solution is ok
-			ok = true
-			return false
-		}
-		return true
-	})
-
-	return ok
+	return rs.Allowed(in)
 }
 
 // AllowedNonConstant checks if a given key match the secrets.
@@ -91,14 +77,5 @@ func (m *Manager) AllowedNonConstant(in Secret) bool {
 		rs = m.rs
 	}()
 
-	var ok bool
-	rs.Range(func(s Secret) (continueRange bool) {
-		if s == in {
-			ok = true
-			return false
-		}
-		return true
-	})
-
-	return ok
+	return rs.AllowedNonConstant(in)
 }

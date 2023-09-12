@@ -1,6 +1,7 @@
 package secretrotation
 
 import (
+	"crypto/subtle"
 	"fmt"
 	"strings"
 )
@@ -22,10 +23,10 @@ func NewRotatingSecret(previous, current, pending Secret) RotatingSecret {
 }
 
 func (rs RotatingSecret) Validate() error {
-	if err := rs.Previous.Validate(); err != nil {
+	if err := rs.Current.Validate(); err != nil {
 		return err
 	}
-	if err := rs.Current.Validate(); err != nil {
+	if err := rs.Previous.Validate(); err != nil {
 		return err
 	}
 	if err := rs.Pending.Validate(); err != nil {
@@ -63,7 +64,7 @@ func (rs *RotatingSecret) Deserialize(s string) error {
 		return nil
 	}
 	if len(secrets) != 3 {
-		return fmt.Errorf("not 3 parts RotatingSecret as string, fail Deserialize")
+		return fmt.Errorf("fail Deserialize, not 3 parts RotatingSecret")
 	}
 	rs.Previous = Secret(secrets[0])
 	rs.Current = Secret(secrets[1])
@@ -89,4 +90,36 @@ func (rs RotatingSecret) RedactSecret(in string) string {
 		return true
 	})
 	return in
+}
+
+// Allowed checks if a given key match the secrets.
+func (rs RotatingSecret) Allowed(in Secret) bool {
+	var ok bool
+	inB := []byte(in)
+	rs.Range(func(s Secret) (continueRange bool) {
+		//using a constant time comparison.
+		//It will always take the same time when wrong, being closer to the solution or not.
+		if subtle.ConstantTimeCompare(inB, []byte(s)) == 1 {
+			//returning early when having the solution is ok
+			ok = true
+			return false
+		}
+		return true
+	})
+	return ok
+}
+
+// AllowedNonConstant checks if a given key match the secrets.
+// This is NOT using the crypto security on timing attacks.
+// This is faster than Allowed()
+func (rs RotatingSecret) AllowedNonConstant(in Secret) bool {
+	var ok bool
+	rs.Range(func(s Secret) (continueRange bool) {
+		if s == in {
+			ok = true
+			return false
+		}
+		return true
+	})
+	return ok
 }

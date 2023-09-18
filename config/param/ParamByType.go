@@ -15,6 +15,9 @@ func NewBool(
 	opts ...paramOption,
 ) (*Param, error) {
 	return New(name, func(s string) error {
+		if len(s) == 0 {
+			return nil
+		}
 		b, err := strconv.ParseBool(s)
 		if err != nil {
 			return err
@@ -29,6 +32,9 @@ func NewInt(
 	opts ...paramOption,
 ) (*Param, error) {
 	return New(name, func(s string) error {
+		if len(s) == 0 {
+			return nil
+		}
 		i, err := strconv.Atoi(s)
 		if err != nil {
 			return err
@@ -43,6 +49,9 @@ func NewInt64(
 	opts ...paramOption,
 ) (*Param, error) {
 	return New(name, func(s string) error {
+		if len(s) == 0 {
+			return nil
+		}
 		i, err := strconv.Atoi(s)
 		if err != nil {
 			return err
@@ -57,6 +66,9 @@ func NewUint(
 	opts ...paramOption,
 ) (*Param, error) {
 	return New(name, func(s string) error {
+		if len(s) == 0 {
+			return nil
+		}
 		i, err := strconv.ParseUint(s, 10, 0)
 		if err != nil {
 			return err
@@ -71,6 +83,9 @@ func NewUint64(
 	opts ...paramOption,
 ) (*Param, error) {
 	return New(name, func(s string) error {
+		if len(s) == 0 {
+			return nil
+		}
 		i, err := strconv.ParseUint(s, 10, 0)
 		if err != nil {
 			return err
@@ -85,6 +100,9 @@ func NewFloat64(
 	opts ...paramOption,
 ) (*Param, error) {
 	return New(name, func(s string) error {
+		if len(s) == 0 {
+			return nil
+		}
 		f, err := strconv.ParseFloat(s, 64)
 		if err != nil {
 			return err
@@ -99,6 +117,9 @@ func NewDuration(
 	opts ...paramOption,
 ) (*Param, error) {
 	return New(name, func(s string) error {
+		if len(s) == 0 {
+			return nil
+		}
 		d, err := time.ParseDuration(s)
 		if err != nil {
 			return err

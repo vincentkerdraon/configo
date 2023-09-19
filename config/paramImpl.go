@@ -185,19 +185,22 @@ func (p paramImpl) loadFlag(logger *slog.Logger, val *string) func(*flag.FlagSet
 	}
 }
 
-func (p paramImpl) load(ctx context.Context, lock lock.Locker, subCommands []subcommand.SubCommand) error {
+func (p paramImpl) load(ctx context.Context, lock lock.Locker, valuePrevious string, subCommands []subcommand.SubCommand) (valueNew string, _ error) {
 	if p.Loader.Getter == nil {
-		return nil
+		return "", nil
 	}
 
 	val, err := p.Loader.Getter(ctx)
 	if err != nil {
-		return errors.ConfigLoaderError{Err: errors.ConfigLoaderFetchError{Err: err}}
+		return "", errors.ConfigLoaderError{Err: errors.ConfigLoaderFetchError{Err: err}}
+	}
+	if valuePrevious == val {
+		return valuePrevious, nil
 	}
 	if err := p.lockAndParse(ctx, lock, val, subCommands); err != nil {
-		return errors.ConfigLoaderError{Err: err}
+		return "", errors.ConfigLoaderError{Err: err}
 	}
-	return nil
+	return val, nil
 }
 
 func (p *paramImpl) lockAndParse(ctx context.Context, lock lock.Locker, s string, subCommands []subcommand.SubCommand) error {

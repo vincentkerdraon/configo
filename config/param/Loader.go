@@ -12,6 +12,9 @@ type (
 
 		//Getter is how to fetch data from the source
 		Getter GetterFunc
+
+		// OnChanged callback is called when value changes
+		OnChanged func()
 	}
 
 	loaderOptions func(r *Loader) error
@@ -21,9 +24,17 @@ type (
 // WithSynchroFrequency is how often the value should be refreshed.
 //
 // default=0 means only at startup
-func WithSynchroFrequency(f time.Duration) loaderOptions {
+func WithSynchroFrequency(d time.Duration) loaderOptions {
 	return func(l *Loader) error {
-		l.SynchroFrequency = f
+		l.SynchroFrequency = d
+		return nil
+	}
+}
+
+// WithCallbackOnChanged to get a callback when the value changes
+func WithCallbackOnChanged(f func()) loaderOptions {
+	return func(l *Loader) error {
+		l.OnChanged = f
 		return nil
 	}
 }

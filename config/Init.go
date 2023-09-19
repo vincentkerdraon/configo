@@ -162,6 +162,9 @@ func (c *Manager) startSync(
 		return errors.ParamConfigError{ParamName: p.Name, Err: fmt.Errorf("expect SynchroFrequency > 0")}
 	}
 	go func() {
+		//Value is another cache, hopefully only for values with a loader and no local config
+		var value string
+
 		ticker := time.NewTicker(p.Loader.SynchroFrequency)
 		defer ticker.Stop()
 		consecutiveErrNb := 0
@@ -170,14 +173,18 @@ func (c *Manager) startSync(
 			case <-ctx.Done():
 				return
 			case <-ticker.C:
-				err := p.load(ctx, c.lock, subCommands)
-				if err == nil {
-					consecutiveErrNb = 0
-					continue
+				valueNew, err := p.load(ctx, c.lock, value, subCommands)
+				if err != nil {
+					c.Logger.DebugCtx(ctx, "fail Loader", slog.String("param", p.Name.String()), slog.String("err", err.Error()), slog.Int("consecutiveErrNb", consecutiveErrNb))
+					consecutiveErrNb++
+					syncError(p.Name, consecutiveErrNb, err)
 				}
-				c.Logger.DebugCtx(ctx, "fail Loader", slog.String("param", p.Name.String()), slog.String("err", err.Error()), slog.Int("consecutiveErrNb", consecutiveErrNb))
-				consecutiveErrNb++
-				syncError(p.Name, consecutiveErrNb, err)
+				if valueNew != value {
+					value = valueNew
+					if p.Loader.OnChanged != nil {
+						p.Loader.OnChanged()
+					}
+				}
 			}
 		}
 	}()

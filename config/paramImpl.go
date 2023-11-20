@@ -7,11 +7,12 @@ import (
 	"os"
 	"strings"
 
+	"log/slog"
+
 	"github.com/vincentkerdraon/configo/config/errors"
 	"github.com/vincentkerdraon/configo/config/param"
 	"github.com/vincentkerdraon/configo/config/subcommand"
 	"github.com/vincentkerdraon/configo/lock"
-	"golang.org/x/exp/slog"
 )
 
 //Keeping this implementation non-exported to keep the public API clean
@@ -40,9 +41,9 @@ func (p *paramImpl) init(ctx context.Context, logger *slog.Logger, lock lock.Loc
 		if valEnvVar != "" {
 			hasEnvVarOrFlag = true
 			val = valEnvVar
-			logger.DebugCtx(ctx, "found env var", slog.String("Param", p.Name.String()), slog.String("Value", val))
+			logger.DebugContext(ctx, "found env var", slog.String("Param", p.Name.String()), slog.String("Value", val))
 		} else {
-			logger.DebugCtx(ctx, "no env var found", slog.String("Param", p.Name.String()))
+			logger.DebugContext(ctx, "no env var found", slog.String("Param", p.Name.String()))
 		}
 	}
 	tmpFlagVal := val
@@ -64,13 +65,13 @@ func (p *paramImpl) init(ctx context.Context, logger *slog.Logger, lock lock.Loc
 				}
 				if valLoader != "" {
 					val = valLoader
-					logger.DebugCtx(ctx, "Loader returns value", slog.String("Param", p.Name.String()), slog.String("Value", val))
+					logger.DebugContext(ctx, "Loader returns value", slog.String("Param", p.Name.String()), slog.String("Value", val))
 				} else {
-					logger.DebugCtx(ctx, "Loader returns no value", slog.String("Param", p.Name.String()))
+					logger.DebugContext(ctx, "Loader returns no value", slog.String("Param", p.Name.String()))
 				}
 			}
 		} else {
-			logger.DebugCtx(ctx, "skipping Loader, found env var or flag", slog.String("Param", p.Name.String()), slog.String("Value", val))
+			logger.DebugContext(ctx, "skipping Loader, found env var or flag", slog.String("Param", p.Name.String()), slog.String("Value", val))
 		}
 
 		//Check mandatory
@@ -180,7 +181,7 @@ func (p paramImpl) loadFlag(logger *slog.Logger, val *string) func(*flag.FlagSet
 	}
 
 	return func(fs *flag.FlagSet) {
-		logger.Debug("Param:%s, checking flag named %q", p.Name, nameFlag)
+		logger.Debug("checking flag", slog.String("Param", p.Name.String()), slog.String("nameFlag", nameFlag))
 		fs.StringVar(val, nameFlag, *val, p.usage(0))
 	}
 }

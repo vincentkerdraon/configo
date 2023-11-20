@@ -9,10 +9,11 @@ import (
 	"strings"
 	"time"
 
+	"log/slog"
+
 	"github.com/vincentkerdraon/configo/config/errors"
 	"github.com/vincentkerdraon/configo/config/param/paramname"
 	"github.com/vincentkerdraon/configo/config/subcommand"
-	"golang.org/x/exp/slog"
 )
 
 const subCommandLevel0 subcommand.SubCommand = ""
@@ -32,7 +33,7 @@ func (c *Manager) Init(ctx context.Context, opts ...configInitOptions) error {
 	//Check and run subCommands. With level0=SubCommand(subCommandLevel0)
 	//In some cases, we want to just get the args and ignore completely the commands
 	subCommands, args := c.findSubCommand(ci.InputArgs, c.IgnoreCommands)
-	c.Logger.DebugCtx(ctx, "findSubCommand and flags", slog.Any("subCommands", subCommands), slog.Any("args", args))
+	c.Logger.DebugContext(ctx, "findSubCommand and flags", slog.Any("subCommands", subCommands), slog.Any("args", args))
 	paramsImpl, initFlags, finalValues, cb, err := c.initParams(ctx, []subcommand.SubCommand{subCommandLevel0}, subCommands, c)
 	if err != nil {
 		return c.usageWhenConfigError(err)
@@ -45,7 +46,7 @@ func (c *Manager) Init(ctx context.Context, opts ...configInitOptions) error {
 		initFlag(fs)
 	}
 	if err := fs.Parse(args); err != nil {
-		c.Logger.WarnCtx(ctx, "fail parse flags", slog.String("err", err.Error()), slog.Bool("IgnoreFlagProvidedNotDefined", c.IgnoreFlagProvidedNotDefined))
+		c.Logger.WarnContext(ctx, "fail parse flags", slog.String("err", err.Error()), slog.Bool("IgnoreFlagProvidedNotDefined", c.IgnoreFlagProvidedNotDefined))
 		if !(c.IgnoreFlagProvidedNotDefined && strings.HasPrefix(err.Error(), errFlagProvidedNotDefined)) {
 			return c.usageWhenConfigError(errors.ConfigError{SubCommands: subCommands, Err: errors.FlagUnknownError{Err: err}})
 		}
@@ -76,7 +77,7 @@ func (c *Manager) Init(ctx context.Context, opts ...configInitOptions) error {
 	//Start sync. Skip if not defined or if has EnvVar or Flag override. (Loader is lower priority)
 	for _, p := range paramsImpl {
 		if p.Loader.Getter == nil || p.Loader.SynchroFrequency == 0 || p.hasEnvVarOrFlag {
-			c.Logger.DebugCtx(ctx, "Loader will not be synchronizing", slog.String("param", p.Name.String()))
+			c.Logger.DebugContext(ctx, "Loader will not be synchronizing", slog.String("param", p.Name.String()))
 			continue
 		}
 		if err := c.startSync(ctx, p, c.LoadErrorHandler, append([]subcommand.SubCommand{subCommandLevel0}, subCommands...)); err != nil {
@@ -175,7 +176,7 @@ func (c *Manager) startSync(
 			case <-ticker.C:
 				valueNew, err := p.load(ctx, c.lock, value, subCommands)
 				if err != nil {
-					c.Logger.DebugCtx(ctx, "fail Loader", slog.String("param", p.Name.String()), slog.String("err", err.Error()), slog.Int("consecutiveErrNb", consecutiveErrNb))
+					c.Logger.DebugContext(ctx, "fail Loader", slog.String("param", p.Name.String()), slog.String("err", err.Error()), slog.Int("consecutiveErrNb", consecutiveErrNb))
 					consecutiveErrNb++
 					syncError(p.Name, consecutiveErrNb, err)
 				}

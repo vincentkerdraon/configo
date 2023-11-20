@@ -1,8 +1,9 @@
 package awssecretmanager
 
 import (
+	"log/slog"
+
 	"github.com/vincentkerdraon/configo/lock"
-	"golang.org/x/exp/slog"
 )
 
 type (

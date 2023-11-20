@@ -23,4 +23,3 @@ To do quite the same purpose, see also:
 - add a way to debug a specific param.
 - add flags for contrainst/validation: "must be > 0", "not value"?
 - how to show help and usage? command "help"?
-- replace golang.org/x/exp/slog in go 1.21

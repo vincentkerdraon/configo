@@ -6,13 +6,14 @@ import (
 	"fmt"
 	"strings"
 
+	"log/slog"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
 	"github.com/vincentkerdraon/configo/awssecretmanager/awssecretmanagerlib/versionstage"
 	"github.com/vincentkerdraon/configo/lock"
 	"github.com/vincentkerdraon/configo/secretrotation"
-	"golang.org/x/exp/slog"
 )
 
 type (
@@ -82,10 +83,10 @@ func (sm *impl) LoadValueWhenJSON(ctx context.Context, secretName string, secret
 	}
 	res, fromCache, err := loadValue(ctx, secretName, sm.loadSecretSimpleValue, decode, sm.cache, sm.lock, cacheKey(s, sm.implCacheID, secretName))
 	if err != nil {
-		sm.logger.WarnCtx(ctx, "LoadValueWhenJSON", slog.String("err", err.Error()), slog.String("secretName", secretName), slog.String("secretKey", secretKey), slog.Bool("fromCache", fromCache))
+		sm.logger.WarnContext(ctx, "LoadValueWhenJSON", slog.String("err", err.Error()), slog.String("secretName", secretName), slog.String("secretKey", secretKey), slog.Bool("fromCache", fromCache))
 		return nil, fromCache, fmt.Errorf("for secretName=%q, secretKey=%q, %w", secretName, secretKey, err)
 	}
-	sm.logger.DebugCtx(ctx, "LoadValueWhenJSON", slog.String("secretName", secretName), slog.String("secretKey", secretKey), slog.Bool("fromCache", fromCache), slog.Any("res", res))
+	sm.logger.DebugContext(ctx, "LoadValueWhenJSON", slog.String("secretName", secretName), slog.String("secretKey", secretKey), slog.Bool("fromCache", fromCache), slog.Any("res", res))
 	return res, fromCache, nil
 }
 
@@ -95,10 +96,10 @@ func (sm *impl) LoadValueWhenPlainText(ctx context.Context, secretName string) (
 	}
 	res, fromCache, err := loadValue(ctx, secretName, sm.loadSecretSimpleValue, decode, sm.cache, sm.lock, cacheKey(s, sm.implCacheID, secretName))
 	if err != nil {
-		sm.logger.WarnCtx(ctx, "LoadValueWhenPlainText", slog.String("err", err.Error()), slog.String("secretName", secretName), slog.Bool("fromCache", fromCache))
+		sm.logger.WarnContext(ctx, "LoadValueWhenPlainText", slog.String("err", err.Error()), slog.String("secretName", secretName), slog.Bool("fromCache", fromCache))
 		return nil, fromCache, fmt.Errorf("for secretName=%q, %w", secretName, err)
 	}
-	sm.logger.DebugCtx(ctx, "LoadValueWhenPlainText", slog.String("secretName", secretName), slog.Bool("fromCache", fromCache), slog.Any("res", res))
+	sm.logger.DebugContext(ctx, "LoadValueWhenPlainText", slog.String("secretName", secretName), slog.Bool("fromCache", fromCache), slog.Any("res", res))
 	return res, fromCache, nil
 }
 
@@ -139,10 +140,10 @@ func (sm *impl) LoadRotatingSecretWhenJSON(ctx context.Context, secretName strin
 	}
 	res, fromCache, err := loadValue(ctx, secretName, sm.loadSecretVersionStage, decode, sm.cache, sm.lock, cacheKey(rs, sm.implCacheID, secretName))
 	if err != nil {
-		sm.logger.WarnCtx(ctx, "LoadRotatingSecretWhenJSON", slog.String("err", err.Error()), slog.String("secretName", secretName), slog.String("secretKey", secretKey), slog.Bool("fromCache", fromCache))
+		sm.logger.WarnContext(ctx, "LoadRotatingSecretWhenJSON", slog.String("err", err.Error()), slog.String("secretName", secretName), slog.String("secretKey", secretKey), slog.Bool("fromCache", fromCache))
 		return nil, fromCache, fmt.Errorf("for secretName=%q, secretKey=%q, %w", secretName, secretKey, err)
 	}
-	sm.logger.DebugCtx(ctx, "LoadRotatingSecretWhenJSON", slog.String("secretName", secretName), slog.String("secretKey", secretKey), slog.Bool("fromCache", fromCache), slog.Any("res", res))
+	sm.logger.DebugContext(ctx, "LoadRotatingSecretWhenJSON", slog.String("secretName", secretName), slog.String("secretKey", secretKey), slog.Bool("fromCache", fromCache), slog.Any("res", res))
 	return res, fromCache, nil
 }
 
@@ -155,10 +156,10 @@ func (sm *impl) LoadRotatingSecretWhenPlainText(ctx context.Context, secretName 
 	}
 	res, fromCache, err := loadValue(ctx, secretName, sm.loadSecretVersionStage, decode, sm.cache, sm.lock, cacheKey(rs, sm.implCacheID, secretName))
 	if err != nil {
-		sm.logger.WarnCtx(ctx, "LoadRotatingSecretWhenPlainText", slog.String("err", err.Error()), slog.String("secretName", secretName), slog.Bool("fromCache", fromCache))
+		sm.logger.WarnContext(ctx, "LoadRotatingSecretWhenPlainText", slog.String("err", err.Error()), slog.String("secretName", secretName), slog.Bool("fromCache", fromCache))
 		return nil, fromCache, fmt.Errorf("for secretName=%q, %w", secretName, err)
 	}
-	sm.logger.DebugCtx(ctx, "LoadRotatingSecretWhenPlainText", slog.String("secretName", secretName), slog.Bool("fromCache", fromCache), slog.Any("res", res))
+	sm.logger.DebugContext(ctx, "LoadRotatingSecretWhenPlainText", slog.String("secretName", secretName), slog.Bool("fromCache", fromCache), slog.Any("res", res))
 	return res, fromCache, nil
 }
 

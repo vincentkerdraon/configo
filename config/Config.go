@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"os"
 
+	"log/slog"
+
 	"github.com/vincentkerdraon/configo/config/errors"
 	"github.com/vincentkerdraon/configo/config/param"
 	"github.com/vincentkerdraon/configo/config/param/paramname"
 	"github.com/vincentkerdraon/configo/config/subcommand"
 	"github.com/vincentkerdraon/configo/lock"
-	"golang.org/x/exp/slog"
 )
 
 type (

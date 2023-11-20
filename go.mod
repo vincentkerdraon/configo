@@ -1,3 +1,5 @@
 module github.com/vincentkerdraon/configo
 
-go 1.19
+go 1.21
+
+require golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa

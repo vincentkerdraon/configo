@@ -8,7 +8,7 @@ replace (
 )
 
 require (
-	github.com/aws/aws-sdk-go v1.48.0
+	github.com/aws/aws-sdk-go v1.49.17
 	github.com/vincentkerdraon/configo v0.6.1-0.20231120164007-846e044da8e1
 	github.com/vincentkerdraon/configo/awssecretmanager/awssecretmanagerlib v0.0.0-20231120164007-846e044da8e1
 )

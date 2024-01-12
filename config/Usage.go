@@ -91,7 +91,7 @@ func (c *Manager) getSubCommand(subCommands []subcommand.SubCommand) *Manager {
 			res = c
 			continue
 		}
-		res = res.SubCommands[subCmd]
+		res = c.SubCommands[subCmd]
 	}
 	return res
 }

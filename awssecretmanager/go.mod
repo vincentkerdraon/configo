@@ -1,6 +1,6 @@
 module github.com/vincentkerdraon/configo/awssecretmanager
 
-go 1.21
+go 1.23
 
 replace (
 	github.com/vincentkerdraon/configo => ../
@@ -8,9 +8,9 @@ replace (
 )
 
 require (
-	github.com/aws/aws-sdk-go v1.49.17
-	github.com/vincentkerdraon/configo v0.6.1-0.20231120164007-846e044da8e1
-	github.com/vincentkerdraon/configo/awssecretmanager/awssecretmanagerlib v0.0.0-20231120164007-846e044da8e1
+	github.com/aws/aws-sdk-go v1.55.5
+	github.com/vincentkerdraon/configo v0.0.0-00010101000000-000000000000
+	github.com/vincentkerdraon/configo/awssecretmanager/awssecretmanagerlib v0.0.0-00010101000000-000000000000
 )
 
 require github.com/jmespath/go-jmespath v0.4.0 // indirect

@@ -29,6 +29,11 @@ type paramImpl struct {
 	//
 	// internal
 	hasEnvVarOrFlag bool
+
+	// currentValue stores the resolved value as string for ExportFlags()
+	//
+	// internal
+	currentValue string
 }
 
 func (p *paramImpl) init(ctx context.Context, logger *slog.Logger, lock lock.Locker, subCommands []subcommand.SubCommand) (initFlag func(*flag.FlagSet), setValue func() error, _ error) {
@@ -88,6 +93,8 @@ func (p *paramImpl) init(ctx context.Context, logger *slog.Logger, lock lock.Loc
 		p.hasEnvVarOrFlag = hasEnvVarOrFlag
 		//Check exclusive values
 		p.hasValue = (val != "")
+		//Store current resolved value for ExportFlags()
+		p.currentValue = val
 
 		return p.lockAndParse(ctx, lock, val, subCommands)
 	}

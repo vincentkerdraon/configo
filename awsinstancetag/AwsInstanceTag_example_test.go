@@ -12,7 +12,7 @@ import (
 	"github.com/vincentkerdraon/configo/awsinstancetag"
 )
 
-func Example_Load() {
+func ExampleLoad() {
 	//Do your own session and client init.
 	//This code is expecting the instance role allows ec2 metadata access.
 

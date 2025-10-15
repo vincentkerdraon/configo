@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"log/slog"
 
@@ -40,6 +41,10 @@ type (
 
 		//lock prevents race condition, mostly when using sync()
 		lock lock.Locker
+
+		// paramsImpl stores the initialized param implementations with current values
+		// Only populated after Init() is called
+		paramsImpl map[paramname.ParamName]*paramImpl
 	}
 
 	configOptionsF func(r *Manager) error
@@ -57,6 +62,7 @@ func New(opts ...configOptionsF) (*Manager, error) {
 	c := Manager{
 		Params:      make(map[paramname.ParamName]param.Param),
 		SubCommands: make(map[subcommand.SubCommand]*Manager),
+		paramsImpl:  make(map[paramname.ParamName]*paramImpl),
 	}
 	for _, opt := range opts {
 		if opt == nil {
@@ -191,4 +197,67 @@ func WithLogger(l *slog.Logger) configOptionsF {
 		c.Logger = l
 		return nil
 	}
+}
+
+// ExportFlags returns a string representation of all flags with their current values.
+// Format: "-flagName=value -otherFlag=\"value with spaces\""
+// Only includes flags that are enabled (Flag.Use == true).
+// Flags are returned in alphabetical order by flag name.
+// Should be called after Init() to get the resolved values.
+func (c *Manager) ExportFlags() string {
+	type flagInfo struct {
+		name string
+		str  string
+	}
+
+	var flags []flagInfo
+
+	for _, pi := range c.paramsImpl {
+		// Skip if flags are disabled
+		if !pi.Flag.Use {
+			continue
+		}
+
+		// Determine flag name
+		var flagName string
+		if pi.Flag.Name != "" {
+			flagName = pi.Flag.Name
+		} else {
+			flagName = pi.Name.String()
+		}
+
+		// Get current value
+		value := pi.currentValue
+
+		// Format the flag
+		var flagStr string
+		if value == "" {
+			flagStr = fmt.Sprintf("-%s=\"\"", flagName)
+		} else if strings.Contains(value, " ") || strings.Contains(value, "\"") {
+			// Escape quotes and wrap in quotes
+			escapedValue := strings.ReplaceAll(value, "\"", "\\\"")
+			flagStr = fmt.Sprintf("-%s=\"%s\"", flagName, escapedValue)
+		} else {
+			flagStr = fmt.Sprintf("-%s=%s", flagName, value)
+		}
+
+		flags = append(flags, flagInfo{name: flagName, str: flagStr})
+	}
+
+	// Sort flags alphabetically by name
+	for i := 0; i < len(flags)-1; i++ {
+		for j := i + 1; j < len(flags); j++ {
+			if flags[i].name > flags[j].name {
+				flags[i], flags[j] = flags[j], flags[i]
+			}
+		}
+	}
+
+	// Extract sorted flag strings
+	var parts []string
+	for _, flag := range flags {
+		parts = append(parts, flag.str)
+	}
+
+	return strings.Join(parts, " ")
 }

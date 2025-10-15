@@ -58,6 +58,9 @@ func (c *Manager) Init(ctx context.Context, opts ...configInitOptions) error {
 			return c.usageWhenConfigError(err)
 		}
 	}
+
+	// Store paramImpl instances for ExportFlags()
+	c.paramsImpl = paramsImpl
 	var aggErr errors.ConfigAggregatedError
 
 	//Check exclusive params

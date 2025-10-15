@@ -448,3 +448,53 @@ func Example_whenMultipleSubCommand() {
 	// 		Environment variable name: City
 	// 		No custom loader defined.
 }
+
+// ExportFlags example shows how to get a string representation of all flags.
+func Example_whenExportFlags() {
+	type City string
+	user := struct {
+		Name string
+		City City
+		Age  int
+	}{}
+
+	pName, err := param.New("Name",
+		func(s string) error { user.Name = s; return nil },
+	)
+	handleErr(err)
+
+	pCity, err := param.New("City",
+		func(s string) error { user.City = City(s); return nil },
+		param.WithDefault("Vancouver"),
+		param.WithFlag(param.WithFlagName("Town")),
+	)
+	handleErr(err)
+
+	pAge, err := param.New("Age",
+		func(s string) error {
+			if s == "" {
+				return nil
+			}
+			age, err := strconv.Atoi(s)
+			if err != nil {
+				return err
+			}
+			user.Age = age
+			return nil
+		},
+	)
+	handleErr(err)
+
+	c, err := config.New(config.WithParams(pName, pCity, pAge))
+	handleErr(err)
+
+	err = c.Init(
+		context.Background(),
+		config.WithInputArgs([]string{"-Name=Vincent"}),
+	)
+	handleErr(err)
+
+	fmt.Println(c.ExportFlags())
+	// Output:
+	// -Age="" -Name=Vincent -Town=Vancouver
+}
